@@ -81,16 +81,16 @@ monster* RanSelect(monster *pool[], int rates[], int len)
 }
 //test专用
 
-// monster* GetMonsterIndex(int num)
-// {
-//     if(num>=g_count || num <0)
-//     {
-//         return NULL;
-//     }
+monster* GetMonsterIndex(int num)
+{
+    if(num>=g_count || num <0)
+    {
+        return NULL;
+    }
 
-//     return &g_monster[num];
+    return &g_monster[num];
 
-// }
+}
 
 
 

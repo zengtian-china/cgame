@@ -24,6 +24,6 @@ int MonsterInit(const char *filename);
 //随机抽取
 monster* RanSelect(monster *pool[], int rates[], int len);
 
-//monster* GetMonsterIndex(int num);
+monster* GetMonsterIndex(int num);
 
 #endif

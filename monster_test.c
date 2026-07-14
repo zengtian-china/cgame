@@ -15,7 +15,7 @@ int main(void)
     printf("成功加载%d只怪物!\n", g_count);
 
     monster *pool[3] = {GetMonsterIndex(0), GetMonsterIndex(1), GetMonsterIndex(2)};
-    int rates[3] = {1, 2, 97};
+    int rates[3] = {40, 20, 40};
 
     monster *p = RanSelect(pool, rates, 3);
 
