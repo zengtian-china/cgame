@@ -452,8 +452,8 @@ int main(void){
     // show_list(list);
     // delList(list);
     User *user = userData("李四");
-    //User *user = UserInit("李四");
-    insertUser(user);
+    // User *user = UserInit("李四");
+    // insertUser(user);
     int i = 0;
     while(i<20){
         
