@@ -466,11 +466,4 @@ int main(void){
 
     delUser(user);
 
-    // user->max_hp = 10000;
-    // insertUser(user);
-    // delUser(user);
 }
-// 30
-// 30 +30 *(1+0.1*(2-1))
-// 63 + 30 *1.2
-// 96 +30 *1.3
