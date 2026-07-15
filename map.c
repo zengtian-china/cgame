@@ -5,6 +5,8 @@
 #include <time.h>
 #include <stdlib.h>
 #include "map.h"
+static OnEncounterMonster g_encounter_cb = NULL;
+
 
 static Map_ID g_current_map = MAP_TOWN;
 static int g_player_x;
@@ -25,19 +27,19 @@ void MapInfoInit(void)
     map_list[MAP_TOWN ].ID = MAP_TOWN ;
     strcpy(map_list[0].name, "新手村");
     map_list[MAP_TOWN].IsSecure = 1;
-    map_list[MAP_TOWN].Min_lever = 1;
-    map_list[MAP_TOWN].Max_lever = 99;
+    map_list[MAP_TOWN].Min_level = 1;
+    map_list[MAP_TOWN].Max_level = 99;
     map_list[MAP_TOWN].monster_num = 0;
     memset(map_list[MAP_TOWN].poll, 0, sizeof(map_list[0].poll));
     memset(map_list[MAP_TOWN].rates, 0, sizeof(map_list[0].rates));
 
     //新手村外
-    map_list[MAP_OUTNOV_VILLOGE].ID = MAP_TOWN ;
-    strcpy(map_list[MAP_OUTNOV_VILLOGE].name, "新手村");
-    map_list[MAP_OUTNOV_VILLOGE].IsSecure = 1;
-    map_list[MAP_OUTNOV_VILLOGE].Min_lever = 1;
-    map_list[MAP_OUTNOV_VILLOGE].Max_lever = 99;
-    map_list[MAP_OUTNOV_VILLOGE].monster_num = 0;
+    map_list[MAP_OUTNOV_VILLOGE].ID = MAP_OUTNOV_VILLOGE;
+    strcpy(map_list[MAP_OUTNOV_VILLOGE].name, "新手村外");
+    map_list[MAP_OUTNOV_VILLOGE].IsSecure = 0;
+    map_list[MAP_OUTNOV_VILLOGE].Min_level = 1;
+    map_list[MAP_OUTNOV_VILLOGE].Max_level = 5;
+    map_list[MAP_OUTNOV_VILLOGE].monster_num = 3;
     map_list[MAP_OUTNOV_VILLOGE].poll[0] = GetMonsterIndex(0);
     map_list[MAP_OUTNOV_VILLOGE].poll[1] = GetMonsterIndex(1);
     map_list[MAP_OUTNOV_VILLOGE].poll[2] = GetMonsterIndex(2);
@@ -46,12 +48,12 @@ void MapInfoInit(void)
     map_list[MAP_OUTNOV_VILLOGE].rates[2] = 40;
 
     //东海湾
-    map_list[MAP_ESAST_BAY].ID = MAP_TOWN ;
-    strcpy(map_list[MAP_ESAST_BAY].name, "新手村");
-    map_list[MAP_ESAST_BAY].IsSecure = 1;
-    map_list[MAP_ESAST_BAY].Min_lever = 1;
-    map_list[MAP_ESAST_BAY].Max_lever = 99;
-    map_list[MAP_ESAST_BAY].monster_num = 0;
+    map_list[MAP_ESAST_BAY].ID = MAP_ESAST_BAY;
+    strcpy(map_list[MAP_ESAST_BAY].name, "东海湾");
+    map_list[MAP_ESAST_BAY].IsSecure = 0;
+    map_list[MAP_ESAST_BAY].Min_level = 5;
+    map_list[MAP_ESAST_BAY].Max_level = 15;
+    map_list[MAP_ESAST_BAY].monster_num = 3;
     map_list[MAP_ESAST_BAY].poll[0] = GetMonsterIndex(3);
     map_list[MAP_ESAST_BAY].poll[1] = GetMonsterIndex(4);
     map_list[MAP_ESAST_BAY].poll[2] = GetMonsterIndex(5);
@@ -60,12 +62,12 @@ void MapInfoInit(void)
     map_list[MAP_ESAST_BAY].rates[2] = 40;
 
     //大雁塔
-    map_list[MAP_GOOSE_PAGODA].ID = MAP_TOWN ;
-    strcpy(map_list[MAP_GOOSE_PAGODA].name, "新手村");
-    map_list[MAP_GOOSE_PAGODA].IsSecure = 1;
-    map_list[MAP_GOOSE_PAGODA].Min_lever = 1;
-    map_list[MAP_GOOSE_PAGODA].Max_lever = 99;
-    map_list[MAP_GOOSE_PAGODA].monster_num = 0;
+    map_list[MAP_GOOSE_PAGODA].ID = MAP_GOOSE_PAGODA;
+    strcpy(map_list[MAP_GOOSE_PAGODA].name, "大雁塔");
+    map_list[MAP_GOOSE_PAGODA].IsSecure = 0;
+    map_list[MAP_GOOSE_PAGODA].Min_level = 10;
+    map_list[MAP_GOOSE_PAGODA].Max_level = 25;
+    map_list[MAP_GOOSE_PAGODA].monster_num = 3;
     map_list[MAP_GOOSE_PAGODA].poll[0] = GetMonsterIndex(6);
     map_list[MAP_GOOSE_PAGODA].poll[1] = GetMonsterIndex(7);
     map_list[MAP_GOOSE_PAGODA].poll[2] = GetMonsterIndex(8);
@@ -74,12 +76,12 @@ void MapInfoInit(void)
     map_list[MAP_GOOSE_PAGODA].rates[2] = 40;
 
     //花果山
-     map_list[MAP_HUAGUOSHAN].ID = MAP_TOWN ;
-    strcpy(map_list[MAP_HUAGUOSHAN].name, "新手村");
-    map_list[MAP_HUAGUOSHAN].IsSecure = 1;
-    map_list[MAP_HUAGUOSHAN].Min_lever = 1;
-    map_list[MAP_HUAGUOSHAN].Max_lever = 99;
-    map_list[MAP_HUAGUOSHAN].monster_num = 0;
+    map_list[MAP_HUAGUOSHAN].ID = MAP_HUAGUOSHAN;
+    strcpy(map_list[MAP_HUAGUOSHAN].name, "花果山");
+    map_list[MAP_HUAGUOSHAN].IsSecure = 0;
+    map_list[MAP_HUAGUOSHAN].Min_level = 20;
+    map_list[MAP_HUAGUOSHAN].Max_level = 35;
+    map_list[MAP_HUAGUOSHAN].monster_num = 3;
     map_list[MAP_HUAGUOSHAN].poll[0] = GetMonsterIndex(9);
     map_list[MAP_HUAGUOSHAN].poll[1] = GetMonsterIndex(10);
     map_list[MAP_HUAGUOSHAN].poll[2] = GetMonsterIndex(11);
@@ -98,21 +100,22 @@ void MapInfoInit(void)
  */
 Map_ID ShowMap(void)
 {
-    int choose;
+    int choose = 0;
     printf("====  选择地图  ====\n");
-    printf("[0]新手村外\n");
-    printf("[1]东海湾\n");
-    printf("[2]大雁塔\n");
+    printf("[0]新手村\n");
+    printf("[1]新手村外\n");
+    printf("[2]东海湾\n");
+    printf("[3]大雁塔\n");
     printf("[4]花果山\n");
     printf("请选择要去往的地图：");
 
-
+    scanf("%d", &choose);
     if(choose <0 || choose>4)
     {
         printf("输入无效\n");
         return g_current_map;
     }
-    scanf("%d", &choose);
+    
 
     return (Map_ID)choose;
 }
@@ -123,9 +126,135 @@ void EnterMap(Map_ID map_id)
     g_current_map = map_id;
     g_player_x = MAP_WIDTH/2;
     g_player_y = MAP_HIGH-1;
+    printf("进入地图：%s\n", map_list[g_current_map].name);
 
 }
 
+
+
+
+// //探索地图
+// void Explore()
+// {
+//     //srand(time(0));
+//     setlocale(LC_ALL, "");
+//     initscr();
+//     cbreak();
+//     noecho();
+
+//     MapInit();          //地图初始化
+
+//     while(1)
+//     {
+        
+//         clear();
+//         draw();
+//         mvaddch(g_player_y, g_player_x, '@');
+//         refresh();
+
+//         int key = getch();
+
+//         move = InputCheck(key);
+//         int move = 0;
+//         if(move && rand()%100 <DANGER_RATE)
+//         {
+//            MapInfo *cur_map = &map_list[g_current_map];
+//            if(cur_map->IsSecure) continue;
+
+//             //随机抽取函数
+//             monster *target = RanSelect(cur_map->poll, cur_map->rates,
+//                                         cur_map->monster_num);
+//             if(target == NULL)
+//             {
+//                 continue;
+//             }
+//             if(g_encounter_cb != NULL)
+//             {
+//                 endwin();
+//                 g_encounter_cb(target);
+//                 initscr();
+//                 cbreak();
+//                 noecho();
+//                 clear();
+//             }           
+            
+                       
+//         }
+//     }
+
+// }
+
+//探索地图
+void Explore()
+{
+    //srand(time(0));
+    setlocale(LC_ALL, "");
+    initscr();
+    cbreak();
+    noecho();
+
+    MapInit();          //地图初始化
+
+    while(1)
+    {
+        
+        clear();
+        draw();
+        mvaddch(g_player_y, g_player_x, '@');
+        refresh();
+
+        int key = getch();
+        int move = 0;
+        move = InputCheck(key);
+        if(key == 'q')
+        {
+            break;
+        }
+        
+        if(move && rand()%100 < DANGER_RATE)
+        {
+           MapInfo *cur_map = &map_list[g_current_map];
+           if(cur_map->IsSecure) continue;
+
+            //随机抽取函数
+            monster *mob = RanSelect(cur_map->poll, cur_map->rates,
+                                        cur_map->monster_num);
+            if(mob == NULL)
+            {
+                continue;
+            }
+                    // 简易战斗交互自测逻辑
+            endwin(); // 关闭ncurses图形界面，切换文本战斗
+            printf("\n===== 野外遇敌！=====\n");
+            printf("怪物：%s Lv.%d\n", mob->mon_name, mob->lever);
+            printf("HP：%d 攻击：%d 防御：%d\n", mob->HP, mob->Attack_power, mob->Defense_power);
+            printf("击败获得：%d经验 %d金币\n", mob->experience, mob->gold);
+
+            // 模拟玩家攻击计算
+            int player_atk = 20; // 临时玩家攻击值
+            int damage = player_atk - mob->Defense_power;
+            if(damage < 1) damage = 1;
+            int mob_hp_left = mob->HP - damage;
+
+            printf("你发起攻击，造成 %d 点伤害\n", damage);
+            if(mob_hp_left <= 0)
+            {
+                printf("成功击杀怪物！\n");
+            }
+            else
+            {
+                printf("怪物剩余血量：%d，怪物反击造成10点伤害\n", mob_hp_left);
+            }
+            printf("按下回车键返回地图继续探索...\n");
+            // getchar();
+            getchar();
+            
+             }         
+        
+    }
+
+}
+//-----------------------内部函数---------------------------
 //地图初始化
 void MapInit(void)
 {
@@ -145,6 +274,8 @@ void MapInit(void)
    }
 
 }
+
+
 //地图画布
 void draw(void)
 {
@@ -158,78 +289,50 @@ void draw(void)
 
 }
 
-//探索地图
-void Explore()
+int InputCheck(int key)
 {
-    srand(time(0));
-    setlocale(LC_ALL, "");
-    initscr();
-    cbreak();
-    noecho();
-
-    MapInit();          //地图初始化
-
-    while(1)
+    int move = 0;
+    switch(key)
     {
-        int move = 0;
-        clear();
-        draw();
-        mvaddch(g_player_y, g_player_x, '@');
-        refresh();
+        
+        case 'w':
+        move = 1;
+        if(g_player_y>1)
+        g_player_y--; break;
 
-        int key = getch();
+        case 's':
+        move = 1;
+        if(g_player_y<MAP_HIGH-2)
+        g_player_y++; break;
 
-        switch(key)
-        {
-            case 'w':
-            move = 1;
-            if(g_player_y>1)
-            g_player_y--; break;
+        case 'a':
+        move = 1;
+        if(g_player_x>1)
+        g_player_x--; break;
 
-            case 's':
-            move = 1;
-            if(g_player_y<MAP_HIGH-2)
-            g_player_y++; break;
+        case 'd':
+        move = 1;
+        if(g_player_x<MAP_WIDTH-2)
+        g_player_x++; break;
 
-            case 'a':
-            move = 1;
-            if(g_player_x>1)
-            g_player_x--; break;
+        case 'q': 
+        endwin(); 
+        return 0;
+        break;
 
-            case 'd':
-            move = 1;
-            if(g_player_x<MAP_WIDTH-2)
-            g_player_x++; break;
+        default:
+        break;
 
-            case 'q':
-            endwin();
+    } 
 
-            
-            return;
-
-        }
-
-        if(move && rand()%100 <DANGER_RATE)
-        {
-            int choose_num;
-            printf("遇到一只野生怪兽！\n");
-            printf("1.把它击败\n");
-            printf("2.逃走\n");
-            scanf("%d", &choose_num);
-
-            switch(choose_num)
-            {
-                case 1:
-                printf("补充战斗函数\n"); break;
-
-                case 2:
-                printf("回到新手村\n");
-            }
-        }
-    }
+    return move;
 
 }
 
+void SetEncounterCallback(OnEncounterMonster cb)
+{
+    g_encounter_cb = cb;
+}
 
 
 

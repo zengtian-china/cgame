@@ -4,12 +4,12 @@
 #include "monster.h"
 
 static monster g_monster[MONSTER_MAX];
-static int g_count = 0;
+static int g_monster_total = 0;
 
 /**
  * @brief  从文件加载所有怪物数据
  * @param  filename  数据文件路径
- * @return 返回成功加载的怪物数量g_count，失败返回-1
+ * @return 返回成功加载的怪物数量g_monster_total，失败返回-1
  */
 int MonsterInit(const char *filename)
 {
@@ -20,39 +20,39 @@ int MonsterInit(const char *filename)
         perror("fopen failed!");
         return -1;
     }
-    g_count = 0;
+    g_monster_total = 0;
     while(fgets(buf, sizeof(buf), fp) != NULL)
     {
         //去掉行尾换行符
         buf[strcspn(buf, "\n")] = '\0';
         //跳过空行
-        if(buf[0] == '0')
+        if(buf[0] == '\0')
         {
             continue;
         }
         //防止数组越界
-        if(g_count >= MONSTER_MAX)
+        if(g_monster_total >= MONSTER_MAX)
         {
             break;
         }
         //解析怪物属性
         int ret = sscanf(
                         buf, "%[^,],%d,%d,%d,%d,%d,%d,%d", 
-                        g_monster[g_count].mon_name, &g_monster[g_count].lever,
-                        &g_monster[g_count].HP, &g_monster[g_count].Attack_power,
-                        &g_monster[g_count].Defense_power, &g_monster[g_count].speed, 
-                        &g_monster[g_count].experience, &g_monster[g_count].gold
+                        g_monster[g_monster_total].mon_name, &g_monster[g_monster_total].lever,
+                        &g_monster[g_monster_total].HP, &g_monster[g_monster_total].Attack_power,
+                        &g_monster[g_monster_total].Defense_power, &g_monster[g_monster_total].speed, 
+                        &g_monster[g_monster_total].experience, &g_monster[g_monster_total].gold
                         );
         if(ret == 8)
         {
             //printf("解析成功！\n");
-            g_count++;
+            g_monster_total++;
         }
 
     }
     fclose(fp);
-    //返回g_count只怪物
-    return g_count;
+    //返回g_monster_total只怪物
+    return g_monster_total;
 }
 /**
  * @brief  随机抽取(地图中需要给怪物池，自己设置怪物出现概率)
@@ -83,15 +83,14 @@ monster* RanSelect(monster *pool[], int rates[], int len)
 
 monster* GetMonsterIndex(int num)
 {
-    if(num>=g_count || num <0)
+    if(num>=g_monster_total || num <0)
     {
         return NULL;
     }
 
     return &g_monster[num];
 
-}
-
+} 
 
 
 

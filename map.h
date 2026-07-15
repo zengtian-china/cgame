@@ -6,7 +6,7 @@
 
 #define MAP_HIGH 20             //地图宽度
 #define MAP_WIDTH 70            //地图长度
-#define DANGER_RATE 20          //遇敌概率（百分比）
+#define DANGER_RATE 100          //遇敌概率（百分比）
 
 typedef enum{
     MAP_TOWN = 0,               //安全区，城镇
@@ -20,8 +20,8 @@ typedef struct MapInfo{
     Map_ID ID;
     char name[50];
     int IsSecure;               //是否在安全区1在，0野外；
-    int Min_lever;              //地图怪兽最低等级
-    int Max_lever;              //地图怪兽最高等级
+    int Min_level;              //地图怪兽最低等级
+    int Max_level;              //地图怪兽最高等级
     int rates[5];               //地图遇敌不同怪兽出现概率
     monster *poll[5];            //地图对应怪兽池
     int monster_num;            //怪兽数量
@@ -39,4 +39,10 @@ Map_ID ShowMap(void);
 
 void MapInfoInit(void);
 
+
+typedef void (*OnEncounterMonster) (monster *target);
+
+void SetEncounterCallback(OnEncounterMonster cb);
+
+int InputCheck(int key);
 #endif
