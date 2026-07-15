@@ -27,5 +27,16 @@ typedef struct MapInfo{
     int monster_num;            //怪兽数量
 }MapInfo;
 
+void Explore(void);
+
+void draw(void);
+
+void MapInit(void);
+
+void EnterMap(Map_ID map_id);
+
+Map_ID ShowMap(void);
+
+void MapInfoInit(void);
 
 #endif

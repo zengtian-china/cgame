@@ -13,6 +13,12 @@ static char map[MAP_HIGH][MAP_WIDTH];
 
 MapInfo map_list[5];
 
+/**
+ * @brief  初始化地图数据信息：每个地图名字，是否是安全区，等级分布
+ *         怪物数量，怪物池对应怪物指针，每种怪物出现概率
+ * @param  无
+ * @return 无
+ */
 void MapInfoInit(void)
 {
     //安全区
@@ -54,7 +60,7 @@ void MapInfoInit(void)
     map_list[MAP_ESAST_BAY].rates[2] = 40;
 
     //大雁塔
-    map_list[3].ID = MAP_TOWN ;
+    map_list[MAP_GOOSE_PAGODA].ID = MAP_TOWN ;
     strcpy(map_list[MAP_GOOSE_PAGODA].name, "新手村");
     map_list[MAP_GOOSE_PAGODA].IsSecure = 1;
     map_list[MAP_GOOSE_PAGODA].Min_lever = 1;
@@ -85,7 +91,11 @@ void MapInfoInit(void)
 
 }
 
-//选择地图
+/**
+ * @brief  选择要去往的地图
+ * @param  无
+ * @return 返回地图ID
+ */
 Map_ID ShowMap(void)
 {
     int choose;
@@ -140,16 +150,16 @@ void draw(void)
 {
     for(int y=0; y<MAP_HIGH; y++)
     {
-        for(int x=0; x<<MAP_WIDTH; x++)
+        for(int x=0; x<MAP_WIDTH; x++)
         {
-            mvaddch(x, y, map[y][x]);
+            mvaddch(y, x, map[y][x]);
         }
     }
 
 }
 
 //探索地图
-void explore(void)
+void Explore()
 {
     srand(time(0));
     setlocale(LC_ALL, "");
@@ -157,7 +167,7 @@ void explore(void)
     cbreak();
     noecho();
 
-    MapInit();
+    MapInit();          //地图初始化
 
     while(1)
     {
@@ -172,8 +182,8 @@ void explore(void)
         switch(key)
         {
             case 'w':
-            if(g_player_y>1)
             move = 1;
+            if(g_player_y>1)
             g_player_y--; break;
 
             case 's':
@@ -193,6 +203,8 @@ void explore(void)
 
             case 'q':
             endwin();
+
+            
             return;
 
         }
@@ -200,7 +212,7 @@ void explore(void)
         if(move && rand()%100 <DANGER_RATE)
         {
             int choose_num;
-            prinrf("遇到一只野生怪兽！\n");
+            printf("遇到一只野生怪兽！\n");
             printf("1.把它击败\n");
             printf("2.逃走\n");
             scanf("%d", &choose_num);
