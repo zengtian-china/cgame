@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "monster.h"
 
-#define MAP_HIGH 10
-#define MAP_WIDTH 10
+#define MAP_HIGH 20             //地图宽度
+#define MAP_WIDTH 70            //地图长度
+#define DANGER_RATE 20          //遇敌概率（百分比）
 
 typedef enum{
     MAP_TOWN = 0,               //安全区，城镇

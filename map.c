@@ -1,14 +1,19 @@
 #include <stdio.h>
 #include <string.h>
+#include <ncurses.h>
+#include <locale.h>
+#include <time.h>
+#include <stdlib.h>
 #include "map.h"
 
 static Map_ID g_current_map = MAP_TOWN;
 static int g_player_x;
 static int g_player_y;
+static char map[MAP_HIGH][MAP_WIDTH];
 
 MapInfo map_list[5];
 
-void MapInit(void)
+void MapInfoInit(void)
 {
     //安全区
     map_list[MAP_TOWN ].ID = MAP_TOWN ;
@@ -80,7 +85,7 @@ void MapInit(void)
 
 }
 
-//显示地图
+//选择地图
 Map_ID ShowMap(void)
 {
     int choose;
@@ -111,11 +116,109 @@ void EnterMap(Map_ID map_id)
 
 }
 
-//简易地图
-void UiMap(void)
+//地图初始化
+void MapInit(void)
 {
-    
+    //双循环赋值，#为地图边界，.为行走空格
+   for(int y = 0; y<MAP_HIGH; y++)
+   {
+    for(int x =0; x<MAP_WIDTH; x++)
+    {
+        if(y == 0 || y == MAP_HIGH-1 || x == 0 || x == MAP_WIDTH-1)
+        {
+            map[y][x] = '#';
+        }
+        else{
+            map[y][x] = '.';
+        }
+    }
+   }
+
 }
+//地图画布
+void draw(void)
+{
+    for(int y=0; y<MAP_HIGH; y++)
+    {
+        for(int x=0; x<<MAP_WIDTH; x++)
+        {
+            mvaddch(x, y, map[y][x]);
+        }
+    }
+
+}
+
+//探索地图
+void explore(void)
+{
+    srand(time(0));
+    setlocale(LC_ALL, "");
+    initscr();
+    cbreak();
+    noecho();
+
+    MapInit();
+
+    while(1)
+    {
+        int move = 0;
+        clear();
+        draw();
+        mvaddch(g_player_y, g_player_x, '@');
+        refresh();
+
+        int key = getch();
+
+        switch(key)
+        {
+            case 'w':
+            if(g_player_y>1)
+            move = 1;
+            g_player_y--; break;
+
+            case 's':
+            move = 1;
+            if(g_player_y<MAP_HIGH-2)
+            g_player_y++; break;
+
+            case 'a':
+            move = 1;
+            if(g_player_x>1)
+            g_player_x--; break;
+
+            case 'd':
+            move = 1;
+            if(g_player_x<MAP_WIDTH-2)
+            g_player_x++; break;
+
+            case 'q':
+            endwin();
+            return;
+
+        }
+
+        if(move && rand()%100 <DANGER_RATE)
+        {
+            int choose_num;
+            prinrf("遇到一只野生怪兽！\n");
+            printf("1.把它击败\n");
+            printf("2.逃走\n");
+            scanf("%d", &choose_num);
+
+            switch(choose_num)
+            {
+                case 1:
+                printf("补充战斗函数\n"); break;
+
+                case 2:
+                printf("回到新手村\n");
+            }
+        }
+    }
+
+}
+
+
 
 
 
