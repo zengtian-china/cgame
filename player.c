@@ -26,6 +26,7 @@ typedef struct user
     int attack;     //攻击
     int defense;    //防御
     int speed;      //速度
+    int invertory_size; //物品数量
     Item invertory[MAX_ITEMS];
 }User;
 
