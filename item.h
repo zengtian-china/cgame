@@ -45,3 +45,20 @@ myItemList* getItemsList(User *user);
 
 //打印背包信息
 void printItemsList(myItemList *mylist);
+
+//物品详情列表初始化
+itemList * newItemsList();
+
+// 获取物品详情列表
+itemList* createItemsList();
+
+// 显示物品详情列表
+void show_itemList(itemList *list);
+
+//根据物品id来查找对于的物品详情数据
+items * find_items(int id,itemList *list);
+
+//显示物品详情
+void show_my(User *user);
+//物品整理   物品排序算法
+void sort_item(User * user);
