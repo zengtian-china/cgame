@@ -50,7 +50,10 @@ void show_itemList(itemList *list){
         printf("物品列表为空。\n");
         return;
     }
+    // 打印表头
+    printf("+------+----------------------+----------------------+----------+\n");
 
+    printf("%*s%s\n", 25, "", "商城物品详情表");
     // 打印表格顶部边框
     printf("+------+----------------------+----------------------+----------+\n");
     // 打印表头
@@ -72,6 +75,8 @@ void show_itemList(itemList *list){
 
     // 打印表格底部边框
     printf("+------+----------------------+----------------------+----------+\n");
+    printf("\n");
+
 }
 //根据物品id来查找对于的物品详情数据
 items * find_items(int id,itemList *list){
@@ -119,6 +124,9 @@ void printItemsList(myItemList *mylist) {
     // 打印表格顶部边框
     printf("+------+----------------------+----------------------+----------+\n");
     // 打印表头
+    printf("%*s%s\n", 25, "", "用户物品详情表");
+    printf("+------+----------------------+----------------------+----------+\n");
+    // 打印表头
     printf("| %-4s | %-20s | %-20s | %-8s |\n", "ID", "物品", "效果", "数量");
     // 打印表头与数据之间的分隔线
     printf("+------+----------------------+----------------------+----------+\n");
@@ -137,6 +145,7 @@ void printItemsList(myItemList *mylist) {
 
     // 打印表格底部边框
     printf("+------+----------------------+----------------------+----------+\n");
+    printf("\n");
 
 }
 
@@ -154,4 +163,67 @@ int main1(){
     // free(list);
     free(user);
     free(mylist);
+}
+
+// 物品展示
+void show_my(User *user){
+    myItemList* mylist =  getItemsList(user);
+    printItemsList(mylist);
+    free(mylist);
+}
+
+//物品排序算法
+void sort_item(User * user){
+    int size = user->invertory_size;
+    if (size <= 0) return;
+    for(int i = 0; i< size;i++){
+        // 把编号小的往前放 
+        for(int j =0;j<size-i-1;j++){
+            if(user->invertory[j].item_id >user->invertory[j+1].item_id){
+                Item tmp = user->invertory[j]; 
+                user->invertory[j] = user->invertory[j + 1];
+                user->invertory[j + 1] = tmp;
+            }
+        }
+    }
+
+        for (int i = 0; i < size; i++) {
+        // 如果当前物品数量已经是0，跳过
+            if (user->invertory[i].item_count == 0) continue;
+
+            // 向后寻找相同的 ID，把数量累加到 i 上
+            for (int j = i + 1; j < size; j++) {
+                if (user->invertory[i].item_id == user->invertory[j].item_id) {
+                    // 累加数量
+                    //如果 累计的数量超过了99
+                    int tmp_x = user->invertory[i].item_count;
+                    int tmp_y = user->invertory[j].item_count;
+                    if(user->invertory[i].item_count + user->invertory[j].item_count >99){
+
+                        user->invertory[i].item_count = 99;
+                        // 将值赋给下一位
+                        user->invertory[i+1].item_count = tmp_x+tmp_y-99;
+                        break;
+                    }else{
+                        user->invertory[i].item_count = tmp_x + tmp_y;
+                        user->invertory[j].item_count = 0;
+                    }
+
+                }
+        }
+        
+    }
+        int slow = 0;
+        for (int fast = 0; fast < size; fast++) {
+            if (user->invertory[fast].item_count > 0) {
+                user->invertory[slow] = user->invertory[fast];
+                slow++;
+            }
+        }
+        for (int i = slow; i < size; i++) {
+            user->invertory[i].item_id = 0;
+            user->invertory[i].item_count = 0;
+            user->invertory_size -=1;
+        }
+
 }

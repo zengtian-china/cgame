@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-15 11:50:05
+ * @LastEditTime: 2026-07-15 20:59:15
  * @Description: File Description
  * @FilePath: \cgame\save.c
  * @@file: 
@@ -303,8 +303,9 @@ User* read_save_main(){
     // user->max_hp = 100;
     // insertUser(user);
     // showUser(user);
-    // printf("正常\n");
+    printf("正常\n");
     delList(list);
+    printf("内存销毁失败\n");
     // delUser(user);
     return user;
 }

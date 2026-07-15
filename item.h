@@ -57,3 +57,8 @@ void show_itemList(itemList *list);
 
 //根据物品id来查找对于的物品详情数据
 items * find_items(int id,itemList *list);
+
+//显示物品详情
+void show_my(User *user);
+//物品整理   物品排序算法
+void sort_item(User * user);
