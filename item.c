@@ -54,7 +54,7 @@ void show_itemList(itemList *list){
     // 打印表格顶部边框
     printf("+------+----------------------+----------------------+----------+\n");
     // 打印表头
-    printf("| %-4s | %-20s | %-20s | %-8s |\n", "ID", "物品", "效果", "数量");
+    printf("| %-4s | %-20s | %-20s | %-8s |\n", "ID", "物品", "效果", "价格");
     // 打印表头与数据之间的分隔线
     printf("+------+----------------------+----------------------+----------+\n");
 
@@ -63,7 +63,7 @@ void show_itemList(itemList *list){
         // 使用固定的字段宽度来对齐各列
         // %-10d 表示左对齐，宽度为10的整数
         // %-20s 表示左对齐，宽度为20的字符串
-        printf("| %-4d | %-20s | %-20s | %-8d |\n",
+        printf("| %-4d | %-21s | %-22s | %-6d |\n",
                list->array[i].id,
                list->array[i].item,
                list->array[i].effect,
@@ -92,7 +92,7 @@ items * find_items(int id,itemList *list){
 myItemList* getItemsList(User *user){
     myItemList* mylist = newMyItemList();
     itemList *list = createItemsList();
-    for(int i=0;i<MAX_ITEMS;i++){
+    for(int i=0;i<user->invertory_size;i++){
         if (user->invertory[i].item_id== 0) break;
         mylist->array[i].id = user->invertory[i].item_id;
         mylist->array[i].number = user->invertory[i].item_count;
@@ -140,7 +140,9 @@ void printItemsList(myItemList *mylist) {
 
 }
 
-int main(){
+
+
+int main1(){
     User *user = read_save_main();
     //正常
     // itemList *list = createItemsList();
@@ -148,6 +150,7 @@ int main(){
     // show_itemList(list);
     myItemList *mylist = getItemsList(user);
     printItemsList(mylist);
+    printf("当前物品数量=%d\n",user->invertory_size);
     // free(list);
     free(user);
     free(mylist);

@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-14 16:19:01
+ * @LastEditTime: 2026-07-15 11:50:05
  * @Description: File Description
  * @FilePath: \cgame\save.c
  * @@file: 
@@ -144,12 +144,7 @@ User * userData(const char *username){
     snprintf(path, 256, "./save/%s.txt", username);
     FILE *fp = fopen(path,"r");
     if (fp == NULL) return NULL;
-    char name[100] ={0};
-    int a;
-    int b;
-    int c;
     int count = fscanf(fp, "%49[^|]|%d|%ld|%d", user->uname, &user->level, &user->exp, &user->gold);
-
     if (count == 4) {
         printf("读取成功 -> 角色名: %s, 等级: %d, 经验:%ld,金币%d\n", user->uname, user->level, user->exp, user->gold);
     } else {
@@ -161,7 +156,6 @@ User * userData(const char *username){
     else{
             printf("读取成功 -> 力量:%d,体质:%d, 敏捷:%d\n", user->strength, user->physique,user->agility);
     }
-
     count = fscanf(fp,"%d|%d|%d|%d",&user->max_hp,&user->hp,&user->max_mp,&user->mp);
     if (count !=4) printf("读取失败！文件格式可能不匹配。只读到了 %d 项。\n", count);
     else{
@@ -179,13 +173,14 @@ User * userData(const char *username){
     int i =0 ;
     char *token1 = strtok(tmp, ",");
 
-    while (token1 !=NULL && i<MAX_ITEMS)
+    while (token1 !=NULL && i<MAX_ITEMS )
     {
         sscanf(token1,"%d:%d",&user->invertory[i].item_id,&user->invertory[i].item_count);
+        if(user->invertory[i].item_id == 0) break;
         printf("物品id->%d:物品数量->%d\n",user->invertory[i].item_id,user->invertory[i].item_count);
         i++;
+        user->invertory_size +=1;  //记录背包物品数量
         token1 =strtok(NULL,",");
-  
     }
     //释放文件内存
     fclose(fp);
@@ -232,9 +227,9 @@ void insertUser(User *user){
             user->speed);
     printf("最终路径: %s\n", path); // 输出: ./save/tian.txt
     int first_item = 1;
-    for(int i=0;i<MAX_ITEMS;i++){
+    for(int i=0;i<user->invertory_size;i++){
         if(user->invertory[i].item_count !=0){
-            if(!file_list){
+            if(!first_item){
                 fprintf(fp,",");
             }
             fprintf(fp,"%d:%d",user->invertory[i].item_id,user->invertory[i].item_count);
