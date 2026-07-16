@@ -1,18 +1,21 @@
+#include "map.h"       // 解决 Map_ID, MapInfo, MAP_TOWN 等报错
+#include "player.h"    // 解决 User 未定义的报错
+#include "monster.h"   // 解决 GetMonsterIndex 未声明的报错
+#include "battle.h"
 #include <stdio.h>
 #include <string.h>
 #include <ncurses.h>
 #include <locale.h>
 #include <time.h>
 #include <stdlib.h>
-#include "map.h"
-#include "save.h"
-static OnEncounterMonster g_encounter_cb = NULL;
+
+OnEncounterMonster g_encounter_cb = NULL;
 
 
-static Map_ID g_current_map = MAP_TOWN;
-static int g_player_x;
-static int g_player_y;
-static char map[MAP_HIGH][MAP_WIDTH];
+Map_ID g_current_map = MAP_TOWN;
+int g_player_x;
+int g_player_y;
+char map[MAP_HIGH][MAP_WIDTH];
 
 MapInfo map_list[5];
 
@@ -131,9 +134,6 @@ void EnterMap(Map_ID map_id)
 
 }
 
-
-
-
 //探索地图
 int Explore(User *user)
 {
@@ -204,78 +204,6 @@ int Explore(User *user)
 
 }
 
-//探索地图
-// void Explore()
-// {
-//     //srand(time(0));
-//     setlocale(LC_ALL, "");
-//     initscr();
-//     cbreak();
-//     noecho();
-
-//     MapInit();          //地图初始化
-
-//     while(1)
-//     {
-        
-//         clear();
-//         draw();
-//         mvaddch(g_player_y, g_player_x, '@');
-//         refresh();
-
-//         int key = getch();
-//         int move = 0;
-//         move = InputCheck(key);
-//         if(key == 'q')
-//         {
-//             break;
-//         }
-        
-//         if(move && rand()%100 < DANGER_RATE)
-//         {
-//            MapInfo *cur_map = &map_list[g_current_map];
-//            if(cur_map->IsSecure) continue;
-
-//             //随机抽取函数
-//             monster *mob = RanSelect(cur_map->poll, cur_map->rates,
-//                                         cur_map->monster_num);
-//             if(mob == NULL)
-//             {
-//                 continue;
-//             }
-//                     // 简易战斗交互自测逻辑
-//             endwin(); // 关闭ncurses图形界面，切换文本战斗
-//             printf("\n===== 野外遇敌！=====\n");
-//             printf("怪物：%s Lv.%d\n", mob->mon_name, mob->lever);
-//             printf("HP：%d 攻击：%d 防御：%d\n", mob->HP, mob->Attack_power, mob->Defense_power);
-//             printf("击败获得：%d经验 %d金币\n", mob->experience, mob->gold);
-
-//             // 模拟玩家攻击计算
-//             int player_atk = 20; // 临时玩家攻击值
-//             int damage = player_atk - mob->Defense_power;
-//             if(damage < 1) damage = 1;
-//             int mob_hp_left = mob->HP - damage;
-
-//             printf("你发起攻击，造成 %d 点伤害\n", damage);
-//             if(mob_hp_left <= 0)
-//             {
-//                 printf("成功击杀怪物！\n");
-//             }
-//             else
-//             {
-//                 printf("怪物剩余血量：%d，怪物反击造成10点伤害\n", mob_hp_left);
-//             }
-//             printf("按下回车键返回地图继续探索...\n");
-//             // getchar();
-//             getchar();
-            
-//              }         
-        
-//     }
-
-// }
-//-----------------------内部函数---------------------------
-//地图初始化
 void MapInit(void)
 {
     //双循环赋值，#为地图边界，.为行走空格
@@ -355,7 +283,28 @@ void SetEncounterCallback(OnEncounterMonster cb)
 }
 
 
-
+void map_main(User *user){
+        printf("前往地图\n");
+        MonsterInit(FILE_NAME);
+        printf("monsterInit 调用了\n");
+        MapInfoInit();
+        printf("MapInfoInit 调用了\n");
+        SetEncounterCallback(battle);
+        printf("SetEncounterCallback 调用了\n");
+        Map_ID map_id = ShowMap();
+        EnterMap(map_id);
+        printf("EnterMap 调用了\n");
+        int explore_result = Explore(user);
+        printf("============\n");
+        if(explore_result == 1){
+            printf("你被怪物击败了！损失10%%经验\n");
+            user->exp = (long)(user->exp * 0.9);
+            user->hp = user->max_hp;
+            user->mp = user->max_mp;
+            insertUser(user);
+            printf("已返回城镇，气血法力已恢复\n");
+        }
+}
 
 
 

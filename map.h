@@ -3,10 +3,13 @@
 
 #include <stdio.h>
 #include "monster.h"
-#include "player.h"
 
-struct user; 
-typedef struct user User; 
+#include "save.h"
+#include "map.h"       // 解决 Map_ID, MapInfo, MAP_TOWN, MAP_HIGH, OnEncounterMonster 未定义的问题
+#include "player.h"    // 解决 User 未定义的问题
+// #include "monster.h"   // 解决 GetMonsterIndex 未声明的问题
+
+
 
 #define MAP_HIGH 20             //地图宽度
 #define MAP_WIDTH 70            //地图长度
@@ -49,4 +52,5 @@ typedef int (*OnEncounterMonster) (User *user, monster *target);
 void SetEncounterCallback(OnEncounterMonster cb);
 
 int InputCheck(int key);
+void map_main(User *user);
 #endif

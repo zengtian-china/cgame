@@ -2,11 +2,14 @@
  * @Author: zengtian
  * @Date: 2026-07-13 20:04:38
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-14 15:37:04
+ * @LastEditTime: 2026-07-16 18:42:37
  * @Description: File Description
  * @FilePath: \cgame\save.h
  * @@file: 
  */
+#ifndef _SAVE_H_
+#define _SAVE_H_
+
 #define MAX_ITEMS 20
 //创建
 //创建
@@ -36,10 +39,10 @@ typedef struct user
     Item invertory[MAX_ITEMS];
 }User;
 
-
+//读取用户信息
 User * read_save_main();
-
-User * create_save_main(char *);
+//创建用户信息
+User * create_save_main(char *name);
 
 //销毁内存数据
 void delUser(User *user);
@@ -47,3 +50,5 @@ void delUser(User *user);
 void showUser(User *user);
 // 更新用户数据
 void insertUser(User *user);
+
+#endif

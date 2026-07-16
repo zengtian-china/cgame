@@ -1,7 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-#include "save.h"
 #include "item.h"
 
 
@@ -50,6 +49,7 @@ void show_itemList(itemList *list){
         printf("物品列表为空。\n");
         return;
     }
+    printf("当前商城物品件数%d\n",list->size);
     // 打印表头
     printf("+------+----------------------+----------------------+----------+\n");
 
@@ -112,8 +112,6 @@ myItemList* getItemsList(User *user){
     return mylist;
 }
 
-
-
 //背包展示
 void printItemsList(myItemList *mylist) {
     if (mylist == NULL || mylist->size == 0) {
@@ -149,21 +147,6 @@ void printItemsList(myItemList *mylist) {
 
 }
 
-
-
-int main1(){
-    User *user = read_save_main();
-    //正常
-    // itemList *list = createItemsList();
-    // //list 详细
-    // show_itemList(list);
-    myItemList *mylist = getItemsList(user);
-    printItemsList(mylist);
-    printf("当前物品数量=%d\n",user->invertory_size);
-    // free(list);
-    free(user);
-    free(mylist);
-}
 
 // 物品展示
 void show_my(User *user){

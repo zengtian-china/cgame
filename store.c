@@ -1,17 +1,7 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-#include "item.h"
-#include "save.h"
-
-
-//查看自己的背包
-// void show_my(User *user){
-//     myItemList* mylist =  getItemsList(user);
-//     printItemsList(mylist);
-//     free(mylist);
-// }
-
+#include "store.h"
 //购买商品
 int shopping(User* user,int number,items * its){
     if(user->gold < number * its->price){
@@ -100,22 +90,16 @@ void show_store(itemList *list,User *user){
 
 
 //显示商品信息
-int main(void) {
+int store_main(User *user) {
     // 获取了商品信息
     itemList *list = createItemsList();
-    User *user = read_save_main();
-    printf("size = %d",user->invertory_size);
-    show_my(user);
-    printf("排序之前\n");
+
     sort_item(user);
-    printf("===========排序过后==============");
-    show_my(user);
-    insertUser(user);
     int status;
-    // show_my(user);
-    while (status)
+    while (1)
     {
         show_itemList(list);
+        printf("store : 当前商城物品数量%d\n",list->size);
         printf("\n");
         printf("┌─────────────────────────────┐\n");
         printf("│        操作菜单             │\n");
@@ -128,20 +112,19 @@ int main(void) {
         scanf("%d",&status);
         if( status == 1) {
             show_store(list, user);
+            sort_item(user);
             status  =3;
-            
         }
         else if(status ==2){
             show_my(user);
+            printf("store : 当前商城物品数量%d\n",list->size);
+            continue;
         }
         else if(status == 3){
-            printf("退出商城");
+            printf("退出商城\n");
+            break;
             //退回主菜单界面
         }
-
-        free(list);
-        free(user);
     }
-    
-
+    free(list);
 }

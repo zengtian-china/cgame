@@ -126,8 +126,7 @@ void file_list(const char * path,List *list){
     
 }
 
-
-
+//用户信息结构初始化
 User * newUser(){
     User *user = malloc(sizeof(User));
     if (user == NULL) return NULL;
@@ -136,7 +135,6 @@ User * newUser(){
     return user;
 
 }
-
 
 // 读取角色信息
 User * userData(const char *username){
@@ -271,12 +269,11 @@ void insertUser(User *user){
     fclose(fp);
     free(path);
 }
-
-
+//销毁内存
 void delUser(User *user){
     free(user);
 }
-
+//打印用户信息
 void showUser(User *user){
     printf("读取成功 -> 角色名: %s, 等级: %d, 经验:%ld,金币%d\n", user->uname, user->level, user->exp, user->gold);
     printf("读取成功 -> 力量:%d,体质:%d, 敏捷:%d\n", user->strength, user->physique,user->agility);
@@ -344,20 +341,15 @@ User* read_save_main(){
     }
 
     User *user = userData(list->array[index-1]); 
-    // user->max_hp = 100;
-    // insertUser(user);
-    // showUser(user);
-    printf("正常\n");
+    //销毁内存
     delList(list);
-    printf("内存销毁失败\n");
-    // delUser(user);
+
     return user;
 }
 
 
 User * create_save_main(char *uname){
     //判断角色是否已经存在
-    
     List *loadData = loadList();
     if(isRoleExist(loadList(),uname)){
         printf("%s角色已存在\n",uname);
@@ -371,6 +363,4 @@ User * create_save_main(char *uname){
         return user;
     }
 
-
-    // User* user = UserInit(uname);
 }

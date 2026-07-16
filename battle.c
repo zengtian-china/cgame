@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include "battle.h"
+
 int use_item(User *user,int id){
     printf("循环start\n");
     for(int i= user->invertory_size-1;i>=0;i--){
@@ -44,16 +44,12 @@ int use_item(User *user,int id){
     return 1;
 }
 
-
-
 int battle(User *user,monster *monster){
-
 
     printf("进行回合制游戏\n");
     // 遇敌 
     int tmp_battle = 0;
     int i =1;
-    // 判断先手
 
     while (user->hp >0 && monster->HP >0)
     {
@@ -192,40 +188,4 @@ int battle(User *user,monster *monster){
         i++;
     
     }
-
-    
-
-
-    // 出招  攻击 回复血量 逃跑
-
-    //攻击 判断血量
-    //  攻击值 > 当前hp
-     // 血量 -> 0  
-     //小于  血量-攻击值
-
-    //怪物 出招  攻击
-    // 攻击 判断血量
-        //  攻击值 > 当前hp
-        // 血量 -> 0  
-        //小于  血量-攻击值
-        // i++
-        // 结束条件  血量为0
-        // 标识符 胜利 失败
-        // 胜利  经验值 + 金币
-
 }
-
-
-//使用药品  是否成功
-
-// int main1(){
-//     User *user= read_save_main();
-
-//     show_my(user);
-
-//     MonsterInit(FILE_NAME);
-//     monster *monsters = GetMonsterIndex(2);
-
-//     battle(user,monsters);
-//     insertUser(user);
-// }

@@ -157,26 +157,3 @@ void levelUpLogic(User *user, int exp){
     }
 
 }
-
-
-// int main(void){
-//     // List *list = newList(2);
-//     // file_list("./data",list);
-//     // show_list(list);
-//     // delList(list);
-//     User *user = userData("李四");
-//     // User *user = UserInit("李四");
-//     // insertUser(user);
-//     int i = 0;
-//     while(i<20){
-        
-//         levelUpLogic(user,200*(i+1));
-//         //将数据更新到文件中
-//         insertUser(user);
-//         i++;
-
-//     }
-
-//     delUser(user);
-
-// }
