@@ -2,15 +2,17 @@
  * @Author: zengtian
  * @Date: 2026-07-14 20:32:37
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-14 20:53:16
+ * @LastEditTime: 2026-07-16 18:19:12
  * @Description: File Description
  * @FilePath: \cgame\item.h
  * @@file: 
  */
-#define MAX_ITEMS_1 20
-struct user; 
-typedef struct user User; 
 
+ #ifndef _ITEM_H_
+ #define _ITEM_H_
+#define MAX_ITEMS 20
+#include "save.h"
+//创建物品结构体
 typedef struct item
 {
     int id;
@@ -36,7 +38,7 @@ typedef struct _myitem
 //创建角色物品详情列表
 typedef struct _myItemList{
     int size;
-    myitem array[MAX_ITEMS_1];
+    myitem array[MAX_ITEMS];
 
 }myItemList;
 
@@ -62,3 +64,5 @@ items * find_items(int id,itemList *list);
 void show_my(User *user);
 //物品整理   物品排序算法
 void sort_item(User * user);
+
+#endif

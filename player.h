@@ -7,10 +7,12 @@
  * @FilePath: \cgame\player.h
  * @@file: 
  */
-struct user; 
-typedef struct user User; 
-
+#ifndef _PLAYER_H_
+#define _PLAYER_H_
+#include "save.h"
 void levelUp(User *user);
 User * UserInit(const char *name);
 void levelUpLogic(User *user, int exp);
 void stat_growth(User *user);
+
+#endif

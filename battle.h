@@ -1,3 +1,12 @@
+/*
+ * @Author: zengtian
+ * @Date: 2026-07-16 13:45:26
+ * @LastEditors: zengtian
+ * @LastEditTime: 2026-07-16 15:32:00
+ * @Description: File Description
+ * @FilePath: \cgame\battle.h
+ * @@file: 
+ */
 #ifndef _BATTLE_H_
 #define _BATTLE_H_
 
