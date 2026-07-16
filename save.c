@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-16 09:05:59
+ * @LastEditTime: 2026-07-16 13:59:59
  * @Description: File Description
  * @FilePath: \cgame\save.c
  * @@file: 
@@ -221,11 +221,36 @@ void insertUser(User *user){
             user->agility);
 
     // 5. 写入气血/法力信息 (对应读取的第三行)
-    fprintf(fp, "%d|%d|%d|%d\n", 
+    if( user->hp <=0 && user->mp <=0){
+            fprintf(fp, "%d|%d|%d|%d\n", 
+            user->max_hp, 
+            user->max_hp, 
+            user->max_mp, 
+            user->max_mp);
+            user->hp = user->max_hp;
+            user->mp = user->max_mp;
+    }else if(user->hp <=0 && user->mp>0)
+    {
+            fprintf(fp, "%d|%d|%d|%d\n", 
+            user->max_hp, 
+            user->max_hp, 
+            user->max_mp, 
+            user->mp);
+            user->hp = user->max_hp;
+    }else if(user->hp>0 && user->mp<=0){
+            fprintf(fp, "%d|%d|%d|%d\n", 
+            user->max_hp, 
+            user->hp, 
+            user->max_mp, 
+            user->max_mp);
+            user->mp = user->max_mp;
+    }else if(user->hp>0 && user->mp >0){
+            fprintf(fp, "%d|%d|%d|%d\n", 
             user->max_hp, 
             user->hp, 
             user->max_mp, 
             user->mp);
+    }
 
     // 6. 写入战斗属性 (对应读取的第四行)
     fprintf(fp, "%d|%d|%d\n", 
