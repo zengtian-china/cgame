@@ -133,7 +133,71 @@ void EnterMap(Map_ID map_id)
 
 
 
-// //探索地图
+//探索地图
+void Explore(User *user)
+{
+    //srand(time(0));
+    setlocale(LC_ALL, "");
+    initscr();
+    cbreak();
+    noecho();
+
+    MapInit();          //地图初始化
+
+    while(1)
+    {
+        
+        clear();
+        draw();
+        mvaddch(g_player_y, g_player_x, '@');
+        
+        mvprintw(10, 20,"遇敌");
+        refresh();
+
+        int key = getch();
+        if(key == 'q')
+        {
+            endwin();
+            return;
+        }
+        
+        int move = InputCheck(key);
+
+        
+        if(move && rand()%100 <DANGER_RATE)
+        {
+            
+           MapInfo *cur_map = &map_list[g_current_map];
+           if(cur_map->IsSecure) continue;
+
+            //随机抽取函数
+            monster *target = RanSelect(cur_map->poll, cur_map->rates,
+                                        cur_map->monster_num);
+
+           // printf("遇到%s", cur_map->name);
+            
+            if(target == NULL)
+            {
+                continue;
+            }
+            if(g_encounter_cb != NULL && user !=NULL)
+            {
+                endwin();
+                g_encounter_cb(user, target);
+
+                initscr();
+                cbreak();
+                noecho();
+                clear();
+            }           
+            
+                       
+        }
+    }
+
+}
+
+//探索地图
 // void Explore()
 // {
 //     //srand(time(0));
@@ -153,107 +217,56 @@ void EnterMap(Map_ID map_id)
 //         refresh();
 
 //         int key = getch();
-
-//         move = InputCheck(key);
 //         int move = 0;
-//         if(move && rand()%100 <DANGER_RATE)
+//         move = InputCheck(key);
+//         if(key == 'q')
+//         {
+//             break;
+//         }
+        
+//         if(move && rand()%100 < DANGER_RATE)
 //         {
 //            MapInfo *cur_map = &map_list[g_current_map];
 //            if(cur_map->IsSecure) continue;
 
 //             //随机抽取函数
-//             monster *target = RanSelect(cur_map->poll, cur_map->rates,
+//             monster *mob = RanSelect(cur_map->poll, cur_map->rates,
 //                                         cur_map->monster_num);
-//             if(target == NULL)
+//             if(mob == NULL)
 //             {
 //                 continue;
 //             }
-//             if(g_encounter_cb != NULL)
+//                     // 简易战斗交互自测逻辑
+//             endwin(); // 关闭ncurses图形界面，切换文本战斗
+//             printf("\n===== 野外遇敌！=====\n");
+//             printf("怪物：%s Lv.%d\n", mob->mon_name, mob->lever);
+//             printf("HP：%d 攻击：%d 防御：%d\n", mob->HP, mob->Attack_power, mob->Defense_power);
+//             printf("击败获得：%d经验 %d金币\n", mob->experience, mob->gold);
+
+//             // 模拟玩家攻击计算
+//             int player_atk = 20; // 临时玩家攻击值
+//             int damage = player_atk - mob->Defense_power;
+//             if(damage < 1) damage = 1;
+//             int mob_hp_left = mob->HP - damage;
+
+//             printf("你发起攻击，造成 %d 点伤害\n", damage);
+//             if(mob_hp_left <= 0)
 //             {
-//                 endwin();
-//                 g_encounter_cb(target);
-//                 initscr();
-//                 cbreak();
-//                 noecho();
-//                 clear();
-//             }           
+//                 printf("成功击杀怪物！\n");
+//             }
+//             else
+//             {
+//                 printf("怪物剩余血量：%d，怪物反击造成10点伤害\n", mob_hp_left);
+//             }
+//             printf("按下回车键返回地图继续探索...\n");
+//             // getchar();
+//             getchar();
             
-                       
-//         }
+//              }         
+        
 //     }
 
 // }
-
-//探索地图
-void Explore()
-{
-    //srand(time(0));
-    setlocale(LC_ALL, "");
-    initscr();
-    cbreak();
-    noecho();
-
-    MapInit();          //地图初始化
-
-    while(1)
-    {
-        
-        clear();
-        draw();
-        mvaddch(g_player_y, g_player_x, '@');
-        refresh();
-
-        int key = getch();
-        int move = 0;
-        move = InputCheck(key);
-        if(key == 'q')
-        {
-            break;
-        }
-        
-        if(move && rand()%100 < DANGER_RATE)
-        {
-           MapInfo *cur_map = &map_list[g_current_map];
-           if(cur_map->IsSecure) continue;
-
-            //随机抽取函数
-            monster *mob = RanSelect(cur_map->poll, cur_map->rates,
-                                        cur_map->monster_num);
-            if(mob == NULL)
-            {
-                continue;
-            }
-                    // 简易战斗交互自测逻辑
-            endwin(); // 关闭ncurses图形界面，切换文本战斗
-            printf("\n===== 野外遇敌！=====\n");
-            printf("怪物：%s Lv.%d\n", mob->mon_name, mob->lever);
-            printf("HP：%d 攻击：%d 防御：%d\n", mob->HP, mob->Attack_power, mob->Defense_power);
-            printf("击败获得：%d经验 %d金币\n", mob->experience, mob->gold);
-
-            // 模拟玩家攻击计算
-            int player_atk = 20; // 临时玩家攻击值
-            int damage = player_atk - mob->Defense_power;
-            if(damage < 1) damage = 1;
-            int mob_hp_left = mob->HP - damage;
-
-            printf("你发起攻击，造成 %d 点伤害\n", damage);
-            if(mob_hp_left <= 0)
-            {
-                printf("成功击杀怪物！\n");
-            }
-            else
-            {
-                printf("怪物剩余血量：%d，怪物反击造成10点伤害\n", mob_hp_left);
-            }
-            printf("按下回车键返回地图继续探索...\n");
-            // getchar();
-            getchar();
-            
-             }         
-        
-    }
-
-}
 //-----------------------内部函数---------------------------
 //地图初始化
 void MapInit(void)

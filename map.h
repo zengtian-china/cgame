@@ -3,6 +3,9 @@
 
 #include <stdio.h>
 #include "monster.h"
+#include "player.h"
+struct user; 
+typedef struct user User; 
 
 #define MAP_HIGH 20             //地图宽度
 #define MAP_WIDTH 70            //地图长度
@@ -27,7 +30,7 @@ typedef struct MapInfo{
     int monster_num;            //怪兽数量
 }MapInfo;
 
-void Explore(void);
+void Explore(User *user);
 
 void draw(void);
 
@@ -40,7 +43,7 @@ Map_ID ShowMap(void);
 void MapInfoInit(void);
 
 
-typedef void (*OnEncounterMonster) (monster *target);
+typedef int (*OnEncounterMonster) (User *user, monster *target);
 
 void SetEncounterCallback(OnEncounterMonster cb);
 

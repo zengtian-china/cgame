@@ -67,7 +67,14 @@ int show_list(List *list){
         printf("%d.%s \n",i+1,list->array[i]);
     }
     printf("请选择读取的存档():");
-    scanf("%d",&index);
+
+    if(scanf("%d",&index) != 1)
+    {
+        //清空缓存
+        int c;
+        while((c = getchar()) != '\n' && c != EOF);
+        return 0;
+    }
     return index;
     
 }
@@ -289,7 +296,9 @@ List * loadList(){
 //判断角色是否存在
 int isRoleExist(List *loadData,char *uname){
     for(int i=0;i<loadData->size;i++){
-        if(0 == strcmp(loadData->array[i],uname)) return 1;
+        if(0 == strcmp(loadData->array[i],uname)) 
+        delList(loadData);
+        return 1;
     }
     //销毁数据列表
     delList(loadData);
@@ -299,7 +308,17 @@ int isRoleExist(List *loadData,char *uname){
 //读写文档，返回角色信息
 User* read_save_main(){
     List *list = loadList();
-    User *user = userData(list->array[show_list(list)-1]); 
+    //增加修改
+    int index = show_list(list);
+
+    if(index <= 0 || index >list->size)
+    {
+        printf("无效\n");
+        delList(list);
+        return NULL;
+    }
+
+    User *user = userData(list->array[index-1]); 
     // user->max_hp = 100;
     // insertUser(user);
     // showUser(user);
