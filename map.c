@@ -151,8 +151,8 @@ int Explore(User *user)
         clear();
         draw();
         mvaddch(g_player_y, g_player_x, '@');
+        mvprintw(20, 30,"%s",map_list[g_current_map].name);
         
-        // mvprintw(10, 20,"遇敌");
         refresh();
 
         int key = getch();
@@ -174,13 +174,24 @@ int Explore(User *user)
             //随机抽取函数
             monster *target = RanSelect(cur_map->poll, cur_map->rates,
                                         cur_map->monster_num);
-
-           // printf("遇到%s", cur_map->name);
-            
             if(target == NULL)
             {
                 continue;
             }
+           mvprintw((MAP_HIGH), (MAP_WIDTH+10)," \n"
+                                                  "怪物名称:%s\n"
+                                                  "等级：%d\n"
+                                                  "生命值：%d\n"
+                                                  "攻击力：%d\n"
+                                                  "防御力:%d\n"
+                                                  "速度:%d\n"
+                                                  "经验:%d\n"
+                                                  "金币:%d\n", 
+                                        target->mon_name, target->lever, target->HP, target->Attack_power,
+                                        target->Defense_power, target->speed, target->experience, target->gold);
+            refresh();
+            getch();
+
             if(g_encounter_cb != NULL && user !=NULL)
             {
                 endwin();
@@ -285,7 +296,8 @@ void SetEncounterCallback(OnEncounterMonster cb)
 
 void map_main(User *user){
         printf("前往地图\n");
-        MonsterInit(FILE_NAME);
+        int mob_num= MonsterInit(FILE_NAME);
+        printf("mod_num %d", mob_num);
         printf("monsterInit 调用了\n");
         MapInfoInit();
         printf("MapInfoInit 调用了\n");
