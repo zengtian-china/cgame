@@ -54,10 +54,7 @@ int battle(User *user,monster *monster){
     int tmp_battle = 0;
     int i =1;
     // 判断先手
-    // printf("怪物数据读取中\n");
-    // printf("角色名:%s",user->uname);
-    // printf("怪物名字是%s",monster->mon_name);
-    
+
     while (user->hp >0 && monster->HP >0)
     {
         printf("第%d回合\n",i);
@@ -70,7 +67,7 @@ int battle(User *user,monster *monster){
             scanf("%d",&tmp_battle);
             if(1 == tmp_battle) {
                 //攻击
-                if(user->attack > monster->HP){
+                if(user->attack >= monster->HP){
                     monster->HP = 0;
                     printf("%s使用了攻击，对%s造成了%d伤害,%s当前HP剩余%d,%s被ko了\n",
                         user->uname,
@@ -156,7 +153,7 @@ int battle(User *user,monster *monster){
             scanf("%d",&tmp_battle);
             if(1 == tmp_battle) {
                 //攻击
-                if(user->attack > monster->HP){
+                if(user->attack >= monster->HP){
                     monster->HP = 0;
                     printf("%s使用了攻击，对%s造成了%d伤害,%s当前HP剩余%d,%s被ko了\n",
                         user->uname,
@@ -168,6 +165,8 @@ int battle(User *user,monster *monster){
                         // 获取经验，获取金币
                         user->gold += monster->gold;
                         levelUpLogic(user,monster->experience);
+                        insertUser(user);
+                        break;
                         return 1;
                 } else{
                     monster->HP = monster->HP-user->attack;
@@ -190,6 +189,7 @@ int battle(User *user,monster *monster){
                 return 0;
             }
         }
+        i++;
     
     }
 
