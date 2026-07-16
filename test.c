@@ -2,27 +2,15 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-
 #include "map.h"
 #include "battle.h"
-
-// ===================== 方案1：外部战斗回调函数 =====================
-// void ExternalBattle(monster* mob)
-// {
-//     printf("\n【外部战斗模块触发】\n");
-//     printf("怪物：%s Lv.%d | HP:%d ATK:%d DEF:%d EXP:%d GOLD:%d\n",
-//            mob->mon_name, mob->lever, mob->HP, mob->Attack_power, mob->Defense_power, mob->experience, mob->gold);
-//     printf("回车返回地图\n");
-//     getchar();
-//     getchar();
-// }
 
 int main(void)
 {
     // 随机种子初始化
     srand((unsigned)time(NULL));
 
-    // 1. 加载怪物文件，打通怪物模块与地图模块数据
+    // 1. 加载怪物文件
     int mob_count = MonsterInit(FILE_NAME);
     if(mob_count < 0)
     {
@@ -31,23 +19,73 @@ int main(void)
     }
     printf("成功加载%d只怪物数据\n", mob_count);
     
-    User *user= read_save_main();
-    // 2. 初始化所有地图信息（绑定每个地图怪物池、概率）
+    // 2. 读取角色存档（如果不存在则程序退出）
+    User *user = read_save_main();
+    if(user == NULL) {
+        printf("读取角色失败，程序退出\n");
+        return -1;
+    }
+
+    // 3. 初始化地图信息和战斗回调（只做一次）
     MapInfoInit();
+    SetEncounterCallback(battle);
 
-    // ========== 切换使用方案1/方案2 ==========
-    // 方案1：开启外部战斗回调（注释此行切换方案2内置战斗）
-     SetEncounterCallback(battle);
-    // 方案2：注释上面一行，直接使用map.c内置简易战斗，无需回调
-
-    // 3. 选择地图
-    Map_ID select_map = ShowMap();
-    EnterMap(select_map);
-
-    // 4. 进入地图WASD操控探索，移动概率遇敌
-   
-    getchar(); // 吸收回车
-    Explore(user);
+    // 4. 建立地图系统的独立主菜单循环
+    int menu_running = 1;
+    while(menu_running)
+    {
+        printf("\n===== 地图探索 =====\n");
+        printf("1. 前往地图探索\n");
+        printf("2. 退出游戏\n");
+        printf("请输入你的选择(1~2): ");
+        
+        int choice;
+        scanf("%d", &choice);
+        
+        switch(choice)
+        {
+        case 1:
+            int explore_alive = 1;
+            
+            while (explore_alive)
+            {
+                // 选择地图
+                Map_ID select_map = ShowMap();
+                EnterMap(select_map);
+                
+                
+                getchar(); 
+                
+                
+                int ret = Explore(user);
+                
+                if (ret == 1) 
+                {
+                   
+                    printf("\n你死了！请重新选择地图 按回车键继续...\n");
+                    getchar();
+                    
+                }
+                else 
+                {
+                    
+                    printf("\n按回车键继续...\n");
+                    getchar();
+                    explore_alive = 0; 
+                }
+            }
+            break;
+                
+            case 2:
+                printf("退出游戏。\n");
+                menu_running = 0; 
+                break;
+                
+            default:
+                printf("输入无效，请重新输入。\n");
+                break;
+        }
+    }
 
     return 0;
 }

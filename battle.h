@@ -16,4 +16,6 @@ int use_item(User *user,int id);
 
 int battle(User *user,monster *monster);
 
+#endif
+
 

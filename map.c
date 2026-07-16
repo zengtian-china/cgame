@@ -5,6 +5,7 @@
 #include <time.h>
 #include <stdlib.h>
 #include "map.h"
+#include "save.h"
 static OnEncounterMonster g_encounter_cb = NULL;
 
 
@@ -134,7 +135,7 @@ void EnterMap(Map_ID map_id)
 
 
 //探索地图
-void Explore(User *user)
+int Explore(User *user)
 {
     //srand(time(0));
     setlocale(LC_ALL, "");
@@ -151,14 +152,14 @@ void Explore(User *user)
         draw();
         mvaddch(g_player_y, g_player_x, '@');
         
-        mvprintw(10, 20,"遇敌");
+        // mvprintw(10, 20,"遇敌");
         refresh();
 
         int key = getch();
         if(key == 'q')
         {
             endwin();
-            return;
+            return 0;
         }
         
         int move = InputCheck(key);
@@ -183,8 +184,14 @@ void Explore(User *user)
             if(g_encounter_cb != NULL && user !=NULL)
             {
                 endwin();
-                g_encounter_cb(user, target);
+                int battle_result = g_encounter_cb(user, target);
+                insertUser(user);
+                if(battle_result == 2)
+                {
+                    printf("\n你被怪物杀死了！...\n");
+                    return 1;
 
+                }
                 initscr();
                 cbreak();
                 noecho();

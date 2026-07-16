@@ -4,12 +4,13 @@
 #include <stdio.h>
 #include "monster.h"
 #include "player.h"
+
 struct user; 
 typedef struct user User; 
 
 #define MAP_HIGH 20             //地图宽度
 #define MAP_WIDTH 70            //地图长度
-#define DANGER_RATE 100          //遇敌概率（百分比）
+#define DANGER_RATE 15          //遇敌概率（百分比）
 
 typedef enum{
     MAP_TOWN = 0,               //安全区，城镇
@@ -30,7 +31,7 @@ typedef struct MapInfo{
     int monster_num;            //怪兽数量
 }MapInfo;
 
-void Explore(User *user);
+int Explore(User *user);
 
 void draw(void);
 
