@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-16 19:25:32
+ * @LastEditTime: 2026-07-16 20:47:20
  * @Description: File Description
  * @FilePath: \cgame\main.c
  * @@file: 
@@ -53,11 +53,12 @@ void enterGame(User *user){
                     store_main(user);
                 }else if(4 == tmp_1){
                     printf("前往地图\n");
-                    
+                    map_main(user);
                 }else if(5 == tmp_1){
                     printf("保存退出\n");
                     insertUser(user);
                     delUser(user);
+                    break;
                 }else{
                     printf("输入的是无效数据,请重新输入\n");
                 }
