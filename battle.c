@@ -1,11 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "save.h"
-#include "item.h"
-#include "monster.h"
-#include "player.h"
 
+#include "battle.h"
 int use_item(User *user,int id){
     printf("循环start\n");
     for(int i= user->invertory_size-1;i>=0;i--){
@@ -221,14 +218,14 @@ int battle(User *user,monster *monster){
 
 //使用药品  是否成功
 
-int main(){
-    User *user= read_save_main();
+// int main1(){
+//     User *user= read_save_main();
 
-    show_my(user);
+//     show_my(user);
 
-    MonsterInit(FILE_NAME);
-    monster *monsters = GetMonsterIndex(2);
+//     MonsterInit(FILE_NAME);
+//     monster *monsters = GetMonsterIndex(2);
 
-    battle(user,monsters);
-    insertUser(user);
-}
+//     battle(user,monsters);
+//     insertUser(user);
+// }
