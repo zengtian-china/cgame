@@ -13,7 +13,9 @@ static int g_monster_total = 0;
  */
 int MonsterInit(const char *filename)
 {
+    printf("进入了怪兽初始化\n");
     char buf[BUF_LEN];
+    
     FILE *fp = fopen(filename, "r");
     if(fp == NULL)
     {

@@ -285,7 +285,7 @@ void SetEncounterCallback(OnEncounterMonster cb)
 
 void map_main(User *user){
         printf("前往地图\n");
-        MonsterInit(FILE_NAME);
+        MonsterInit("./data/monster.txt");
         printf("monsterInit 调用了\n");
         MapInfoInit();
         printf("MapInfoInit 调用了\n");
