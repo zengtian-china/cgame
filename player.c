@@ -60,7 +60,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 200 * user->level; 
         user->strength = user->strength + 2*user->level;
-        user->physique = user->physique + 2*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 2*user->level;   //血量系数 hp *(1.2)
         user->agility = user->agility + 2*(user->level- 9);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.1)*user->physique));
         user->hp = user->max_hp;
@@ -74,7 +74,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 300 * user->level; 
         user->strength = user->strength + 3*user->level;
-        user->physique = user->physique + 3*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 3*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 3*(user->level- 10);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.2)*user->physique));
         user->hp = user->max_hp;
@@ -87,7 +87,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 500 * user->level; 
         user->strength = user->strength + 5*user->level;
-        user->physique = user->physique + 5*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 5*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 5*(user->level- 15);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.2)*user->physique));
         user->hp = user->max_hp;
@@ -100,7 +100,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 1000 * user->level; 
         user->strength = user->strength + 10*user->level;
-        user->physique = user->physique + 10*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 10*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 10*(user->level- 20);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.5)*user->physique));
         user->hp = user->max_hp;
