@@ -100,7 +100,12 @@ int main(void) {
         printf("2.继续游戏\n");
         printf("0.退出游戏\n");
         printf("请输入你的选择(0~2):");
-        scanf("%d",&status);
+        if(scanf("%d",&status) !=1){
+            printf("输入的是无效数据，请重新输入\n");
+            int c;
+            while ( (c=getchar()) !='\n' && c!=EOF);
+            continue;
+        }
         switch(status){
         case 1:
             printf("请输入你要创建的角色名称:");
