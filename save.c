@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-16 13:59:59
+ * @LastEditTime: 2026-07-16 20:08:33
  * @Description: File Description
  * @FilePath: \cgame\save.c
  * @@file: 
@@ -318,10 +318,9 @@ List * loadList(){
 //判断角色是否存在
 int isRoleExist(List *loadData,char *uname){
     for(int i=0;i<loadData->size;i++){
-        if(0 == strcmp(loadData->array[i],uname)) 
-        {
-            delList(loadData);
-            return 1;
+        if(0 == strcmp(loadData->array[i],uname)){
+        delList(loadData);
+        return 1;
         }
     }
     //销毁数据列表
