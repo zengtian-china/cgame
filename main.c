@@ -2,7 +2,7 @@
  * @Author: zengtian
  * @Date: 2026-07-09 20:15:42
  * @LastEditors: zengtian
- * @LastEditTime: 2026-07-16 20:47:20
+ * @LastEditTime: 2026-07-17 20:09:20
  * @Description: File Description
  * @FilePath: \cgame\main.c
  * @@file: 
@@ -28,7 +28,12 @@ void enterGame(User *user){
         printf("1.菜单选项\n");
         printf("2.保存退出\n");
         printf("请输入你的选择(1~2)");
-        scanf("%d",&status);
+        if(scanf("%d",&status) !=1){
+            printf("输入的是无效数据，请重新输入\n");
+            int c;
+            while ( (c=getchar()) !='\n' && c!=EOF);
+            continue;
+        }
         if( 1 ==status){
             while (1)
             {
@@ -39,7 +44,12 @@ void enterGame(User *user){
                 printf("4.前往地图\n");
                 printf("5.保存退出\n");
                 printf("请选择(1~5):");
-                scanf("%d",&tmp_1);
+                if(scanf("%d",&tmp_1) !=1){
+                    printf("输入的是无效数据，请重新输入\n");
+                    int c;
+                    while ( (c=getchar()) !='\n' && c!=EOF);
+                    continue;
+                }
                 if(1 == tmp_1){
                     printf("属性函数\n");
                     showUser(user);
@@ -66,7 +76,8 @@ void enterGame(User *user){
             break;
         }
         else if(2 ==status){
-            printf("game ov\n");
+            insertUser(user);
+            delUser(user);
             break;
         }
         else{
@@ -94,7 +105,7 @@ int main(void) {
         case 1:
             printf("请输入你要创建的角色名称:");
             
-            scanf("%s",username);
+            scanf("%254s",username);
             user = create_save_main(username);
             if (user !=NULL){
                 status = 0;
@@ -109,6 +120,11 @@ int main(void) {
             printf("读取存档\n");
             status = 0;
             user =read_save_main();
+            if( user==NULL){
+                printf("读取存档失败，请重试\n");
+                status = 1;
+                break;
+            }
             enterGame(user);
             break;
         case 0:
