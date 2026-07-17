@@ -104,7 +104,7 @@ int battle(User *user,monster *monster){
             } else if (3 == tmp_battle){
                 return 0;
             }
-        //怪物攻击
+        if(monster->HP > 0){
             if(monster->Attack_power> user->hp){
                     user->hp = 0;
                     printf("%s使用了攻击，对%s造成了%d伤害,%s当前HP剩余%d,%s被ko了\n",
@@ -114,7 +114,8 @@ int battle(User *user,monster *monster){
                         user->uname,
                         user->hp,
                         user->uname);
-                        return 2;
+                    insertUser(user);
+                    return 2;
                 } else{
                     user->hp -= monster->Attack_power;
                     printf("%s使用了攻击，对%s造成了%d伤害,%s当前HP剩余%d\n",
@@ -124,6 +125,7 @@ int battle(User *user,monster *monster){
                         user->uname,
                         user->hp);
                 }
+            }
 
         }
         else{
@@ -137,8 +139,8 @@ int battle(User *user,monster *monster){
                         user->uname,
                         user->hp,
                         user->uname);
-                        insertUser(user);
-                        return 2;
+                    insertUser(user);
+                    return 2;
                 } else{
                     user->hp -= monster->Attack_power;
                     printf("%s使用了攻击，对%s造成了%d伤害,%s当前HP剩余%d\n",

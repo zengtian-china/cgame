@@ -113,7 +113,11 @@ Map_ID ShowMap(void)
     printf("[4]花果山\n");
     printf("请选择要去往的地图：");
 
-    scanf("%d", &choose);
+    if (scanf("%d", &choose) != 1) {
+        printf("输入无效\n");
+        int c; while ((c = getchar()) != '\n' && c != EOF);
+        return g_current_map;
+    }
     if(choose <0 || choose>4)
     {
         printf("输入无效\n");
@@ -137,7 +141,7 @@ void EnterMap(Map_ID map_id)
 //探索地图
 int Explore(User *user)
 {
-    //srand(time(0));
+    srand((unsigned)time(NULL));
     setlocale(LC_ALL, "");
     initscr();
     cbreak();
@@ -298,6 +302,10 @@ void map_main(User *user){
         printf("前往地图\n");
         int mob_num= MonsterInit(FILE_NAME);
         printf("mod_num %d", mob_num);
+        if (mob_num <= 0) {
+            printf("怪物数据加载失败\n");
+            return;
+        }
         printf("monsterInit 调用了\n");
         MapInfoInit();
         printf("MapInfoInit 调用了\n");

@@ -136,19 +136,26 @@ User * newUser(){
 
 }
 
-// 读取角色信息
 User * userData(const char *username){
-    // 1. 预估一个足够大的空间（比如 256 字节）
     char *path = malloc(256); 
-    //创建user
     User *user = newUser();
     
-    if (path == NULL) return NULL;
+    if (path == NULL) {
+        free(user);
+        return NULL;
+    }
+    if (user == NULL) {
+        free(path);
+        return NULL;
+    }
 
-    // %s 代表字符串，snprintf 会自动在最后加上 \0
     snprintf(path, 256, "./save/%s.txt", username);
     FILE *fp = fopen(path,"r");
-    if (fp == NULL) return NULL;
+    if (fp == NULL) {
+        free(path);
+        free(user);
+        return NULL;
+    }
     int count = fscanf(fp, "%49[^|]|%d|%ld|%d", user->uname, &user->level, &user->exp, &user->gold);
     if (count == 4) {
         printf("读取成功 -> 角色名: %s, 等级: %d, 经验:%ld,金币%d\n", user->uname, user->level, user->exp, user->gold);
@@ -173,18 +180,19 @@ User * userData(const char *username){
     }
     
     char tmp[255];
-    // 读取背包信息
-    fscanf(fp,"%s",tmp);
+    fscanf(fp,"%254s",tmp);
     int i =0 ;
     char *token1 = strtok(tmp, ",");
 
     while (token1 !=NULL && i<MAX_ITEMS )
     {
-        sscanf(token1,"%d:%d",&user->invertory[i].item_id,&user->invertory[i].item_count);
+        if (sscanf(token1,"%d:%d",&user->invertory[i].item_id,&user->invertory[i].item_count) != 2) {
+            break;
+        }
         if(user->invertory[i].item_id == 0) break;
         printf("物品id->%d:物品数量->%d\n",user->invertory[i].item_id,user->invertory[i].item_count);
         i++;
-        user->invertory_size +=1;  //记录背包物品数量
+        user->invertory_size +=1;
         token1 =strtok(NULL,",");
     }
     //释放文件内存
@@ -193,62 +201,32 @@ User * userData(const char *username){
     free(path);
     return user;
 }
-// 更新用户信息
 void insertUser(User *user){
     char *path = malloc(256); 
     if (path == NULL) return;
-    // %s 代表字符串，snprintf 会自动在最后加上 \0
-    sprintf(path, "./save/%s.txt", user->uname);
-    FILE *fp = fopen(path,"w+");
-        if (fp == NULL) {
+    snprintf(path, 256, "./save/%s.txt", user->uname);
+    FILE *fp = fopen(path,"w");
+    if (fp == NULL) {
         perror("无法打开文件进行写入");
+        free(path);
         return;
     }
-    // 3. 写入基础信息 (对应读取的第一行)
-    // 注意：这里必须加上 \n，因为 fscanf 读取时是按行或按空白符跳过的
     fprintf(fp, "%s|%d|%ld|%d\n", 
             user->uname, 
             user->level, 
             user->exp, 
             user->gold);
 
-    // 4. 写入属性信息 (对应读取的第二行)
     fprintf(fp, "%d|%d|%d\n", 
             user->strength, 
             user->physique, 
             user->agility);
 
-    // 5. 写入气血/法力信息 (对应读取的第三行)
-    if( user->hp <=0 && user->mp <=0){
-            fprintf(fp, "%d|%d|%d|%d\n", 
-            user->max_hp, 
-            user->max_hp, 
-            user->max_mp, 
-            user->max_mp);
-            user->hp = user->max_hp;
-            user->mp = user->max_mp;
-    }else if(user->hp <=0 && user->mp>0)
-    {
-            fprintf(fp, "%d|%d|%d|%d\n", 
-            user->max_hp, 
-            user->max_hp, 
-            user->max_mp, 
-            user->mp);
-            user->hp = user->max_hp;
-    }else if(user->hp>0 && user->mp<=0){
-            fprintf(fp, "%d|%d|%d|%d\n", 
-            user->max_hp, 
-            user->hp, 
-            user->max_mp, 
-            user->max_mp);
-            user->mp = user->max_mp;
-    }else if(user->hp>0 && user->mp >0){
-            fprintf(fp, "%d|%d|%d|%d\n", 
+    fprintf(fp, "%d|%d|%d|%d\n", 
             user->max_hp, 
             user->hp, 
             user->max_mp, 
             user->mp);
-    }
 
     // 6. 写入战斗属性 (对应读取的第四行)
     fprintf(fp, "%d|%d|%d\n", 
@@ -315,16 +293,12 @@ List * loadList(){
     return list;
 }
 
-//判断角色是否存在
 int isRoleExist(List *loadData,char *uname){
     for(int i=0;i<loadData->size;i++){
         if(0 == strcmp(loadData->array[i],uname)){
-        delList(loadData);
-        return 1;
+            return 1;
         }
     }
-    //销毁数据列表
-    delList(loadData);
     return 0;
 }
 
@@ -350,16 +324,15 @@ User* read_save_main(){
 
 
 User * create_save_main(char *uname){
-    //判断角色是否已经存在
     List *loadData = loadList();
     if(isRoleExist(loadData,uname)){
         printf("%s角色已存在\n",uname);
-
+        delList(loadData);
         return NULL;
     }
     else{
         printf("角色不存在\n");
-        //创建角色
+        delList(loadData);
         User *user = UserInit(uname);
         return user;
     }

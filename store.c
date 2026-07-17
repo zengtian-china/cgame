@@ -2,15 +2,21 @@
 #include<stdio.h>
 #include<string.h>
 #include "store.h"
-//购买商品
 int shopping(User* user,int number,items * its){
+    if (its == NULL) {
+        printf("物品不存在\n");
+        return -1;
+    }
+    if (number <= 0) {
+        printf("数量必须为正\n");
+        return -1;
+    }
     if(user->gold < number * its->price){
         printf("金币不够，购买失败，请通过打怪获取金币\n");
         return -1;
     }
     else{
-        // 判断购买的数量是否超过了99 单格最大数量为99
-        int slots_needed = (number + 98) / 99;  // 例如：100个需要2格，250个需要3格
+        int slots_needed = (number + 98) / 99;
         if (user->invertory_size + slots_needed > MAX_ITEMS) {
             printf("背包空间不足，无法购买这么多物品。需要 %d 个空位，当前只剩 %d 个\n", 
                 slots_needed, MAX_ITEMS - user->invertory_size);
@@ -40,7 +46,6 @@ void show_store(itemList *list,User *user){
         int id = 0;
         int tmp_show_status = 0;
         printf("+------+----------------------+--------+\n");
-        // 打印表头
         printf("| %-4s | %-20s | %-8s |\n", "ID", "物品","价格");
         for(int i=0;i<list->size;i++){
             printf("| %-4d | %-21s | %-6d |\n",
@@ -50,19 +55,31 @@ void show_store(itemList *list,User *user){
         }
         printf("+------+----------------------+--------+\n");
         printf("请选择购买的商品id(1~%d):",list->size);
-        scanf("%d",&id);
+        if (scanf("%d",&id) != 1) {
+            printf("输入无效\n");
+            int c; while ((c = getchar()) != '\n' && c != EOF);
+            continue;
+        }
         printf("请输入购买的数量:");
-        scanf("%d",&number);
-        if (1 == shopping(user,number,find_items(id,list))){
+        if (scanf("%d",&number) != 1) {
+            printf("输入无效\n");
+            int c; while ((c = getchar()) != '\n' && c != EOF);
+            continue;
+        }
+        items *it = find_items(id,list);
+        int ret = shopping(user, number, it);
+        if (it != NULL) free(it);
+        if (ret == 1){
             printf("      购买成功\n");
-            //更新用户物品详情列表
-            // mylist =  getItemsList(user);
             printf("当前余额:%d金币\n",user->gold);
             printf("1.继续购买\n");
             printf("2.查看背包\n");
             printf("3.退出商店\n");
             printf("请输入你的选项(1~3):");
-            scanf("%d",&tmp_show_status);
+            if (scanf("%d",&tmp_show_status) != 1) {
+                int c; while ((c = getchar()) != '\n' && c != EOF);
+                tmp_show_status = 3;
+            }
             if (1 == tmp_show_status) continue;
             if (2 == tmp_show_status) {
                 show_my(user);
@@ -71,13 +88,15 @@ void show_store(itemList *list,User *user){
             if (3 == tmp_show_status) break;
 
         } else{
-            // printf("购买失败\n");
             printf("当前余额:%d金币\n",user->gold);
             printf("1.继续购买\n");
             printf("2.查看背包\n");
             printf("3.退出商店\n");
             printf("请输入你的选项(1~3):");
-            scanf("%d",&tmp_show_status);
+            if (scanf("%d",&tmp_show_status) != 1) {
+                int c; while ((c = getchar()) != '\n' && c != EOF);
+                tmp_show_status = 3;
+            }
             if (1 == tmp_show_status) continue;
             if (2 == tmp_show_status) {
                 show_my(user);

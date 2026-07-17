@@ -16,13 +16,13 @@ int MonsterInit(const char *filename)
     printf("进入了怪兽初始化\n");
     char buf[BUF_LEN];
     
+    g_monster_total = 0;
     FILE *fp = fopen(filename, "r");
     if(fp == NULL)
     {
         perror("fopen failed!");
         return -1;
     }
-    g_monster_total = 0;
     while(fgets(buf, sizeof(buf), fp) != NULL)
     {
         //去掉行尾换行符
@@ -65,6 +65,8 @@ int MonsterInit(const char *filename)
  */
 monster* RanSelect(monster *pool[], int rates[], int len)
 {
+    if (len <= 0) return NULL;
+    
     int ran_num = rand() % 100 + 1;
     int sum = 0;
     for(int i=0; i<len; i++)
