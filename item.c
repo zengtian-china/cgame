@@ -6,7 +6,7 @@
 
 //物品详情初始化
 items *newitems(){
-    items *item = malloc(sizeof(items));
+    items *item = calloc(1,sizeof(items));
     if (item ==NULL) return NULL;
     return item;
 }
@@ -28,6 +28,10 @@ itemList* createItemsList(){
     //创建物品详情列表
     itemList *list = newItemsList();
     FILE *fp = fopen("./data/item.txt","r");
+    if(fp == NULL){
+        perror("fopen item.txt failed\n");
+        return list;
+    }
     int i =0;
   while (i < MAX_ITEMS && fscanf(fp, "%d|%[^|]|%[^|]|%d", 
             &list->array[i].id,
@@ -81,15 +85,18 @@ void show_itemList(itemList *list){
 //根据物品id来查找对于的物品详情数据
 items * find_items(int id,itemList *list){
     items *item = newitems();
+    int found;
     for(int i=0;i<list->size;i++){
         if(list->array[i].id == id){
             item->id = list->array[i].id;
             item->price = list->array[i].price;
             strcpy(item->item,list->array[i].item);
             strcpy(item->effect,list->array[i].effect);
+            found=1;
             break;
         }
     }
+    if (!found) { free(item); return NULL; }
     return item;
 }
 
@@ -102,6 +109,7 @@ myItemList* getItemsList(User *user){
         mylist->array[i].id = user->invertory[i].item_id;
         mylist->array[i].number = user->invertory[i].item_count;
         items * it= find_items(user->invertory[i].item_id,list);
+        if (it == NULL) continue;
         mylist->size +=1;
         strcpy(mylist->array[i].item,it->item);
         strcpy(mylist->array[i].effect,it->effect);

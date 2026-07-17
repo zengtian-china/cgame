@@ -19,7 +19,10 @@ void stat_growth(User *user){
         scanf("%d",&physique);
         printf("敏捷(0~5):");
         scanf("%d",&agility);
-        if((strength >=0) &&(physique >=0) && (agility >=0) &&((strength+physique+agility) == 5)) {
+        if (strength>=0 && strength<=5 &&
+        physique>=0 && physique<=5 &&
+        agility>=0 && agility<=5 &&
+        strength+physique+agility == 5){
             statuc = 0;
             break;
         } else{
@@ -57,7 +60,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 200 * user->level; 
         user->strength = user->strength + 2*user->level;
-        user->physique = user->physique + 2*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 2*user->level;   //血量系数 hp *(1.2)
         user->agility = user->agility + 2*(user->level- 9);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.1)*user->physique));
         user->hp = user->max_hp;
@@ -71,7 +74,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 300 * user->level; 
         user->strength = user->strength + 3*user->level;
-        user->physique = user->physique + 3*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 3*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 3*(user->level- 10);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.2)*user->physique));
         user->hp = user->max_hp;
@@ -84,7 +87,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 500 * user->level; 
         user->strength = user->strength + 5*user->level;
-        user->physique = user->physique + 5*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 5*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 5*(user->level- 15);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.2)*user->physique));
         user->hp = user->max_hp;
@@ -97,7 +100,7 @@ void levelUp(User *user){
         user->level = user->level + 1;
         user->gold = user->gold + 1000 * user->level; 
         user->strength = user->strength + 10*user->level;
-        user->physique = user->physique + 10*user->level;;   //血量系数 hp *(1.2)
+        user->physique = user->physique + 10*user->level;  //血量系数 hp *(1.2)
         user->agility = user->agility + 10*(user->level- 20);  //敏捷
         user->max_hp = (int)(user->max_hp *(1+(0.5)*user->physique));
         user->hp = user->max_hp;
@@ -115,45 +118,16 @@ void levelUp(User *user){
 }
 
 void levelUpLogic(User *user, int exp){
-    int max_exp = 0;
-    printf("等级升级逻辑\n");
-    // 更新最新经验值
-    user->exp = user->exp +exp;
-    if (user->level <10){
-        max_exp = user->level *100;
-        printf("当前等级小于10\n");
-        printf("当前经验值%ld\n",user->exp);
-        printf("升级所需的经验值%d\n",max_exp);
-        while (max_exp <= user->exp)
-        {
-            printf("经验满足升级条件");
-            user->exp = user->exp - max_exp;
-            levelUp(user);
-        }
-        
-    } else if(user->level <30){
-        max_exp = user->level *200+(user->level * user->level *2);
-        while (max_exp <= user->exp)
-        {
-            user->exp = user->exp - max_exp;
-            levelUp(user);
-        }
-    } else if(user->level <40){
-        max_exp = user->level *400+(user->level * user->level *5);
-        while (max_exp <= user->exp)
-        {
-            user->exp = user->exp - max_exp;
-            levelUp(user);
-        }
-    }   else if(user->level <50){
-        max_exp = user->level *100+(user->level * user->level *10);
-        while (max_exp <= user->exp)
-        {
-            user->exp = user->exp - max_exp;
-            levelUp(user);
-        }
-    } else{
-
-    }
+while (1) {
+    int max_exp;
+    if (user->level < 10) max_exp = user->level * 100;
+    else if (user->level < 30) max_exp = user->level*200 + user->level*user->level*2;
+    else if (user->level < 40) max_exp = user->level*400 + user->level*user->level*5;
+    else if (user->level < 50) max_exp = user->level*100 + user->level*user->level*10;
+    else break;
+    if (max_exp > user->exp) break;
+    user->exp -= max_exp;
+    levelUp(user);
+}
 
 }

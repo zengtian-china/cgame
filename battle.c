@@ -4,14 +4,12 @@
 #include "battle.h"
 
 int use_item(User *user,int id){
-    printf("循环start\n");
+
     for(int i= user->invertory_size-1;i>=0;i--){
-        printf("循环中\n");
-        if(user->invertory[i].item_id == id){
+        if(user->invertory[i].item_id == id && id !=0){
             user->invertory[i].item_count -= 1;
             //获取商品列表 
             itemList *list = createItemsList();
-            printf("商品列表\n");
             items * it = find_items(id,list);
             if (it == NULL) {
                 printf("系统错误：找不到该物品信息！\n");
@@ -20,9 +18,6 @@ int use_item(User *user,int id){
             }
             int tmp_hp =0;
             int ret = sscanf(it->effect, "恢复%d", &tmp_hp);
-            printf("ref = %d tmp_hp=%d",ret,tmp_hp);
-            free(list);
-            free(it);
             if (ret == 1 && tmp_hp > 0) {
                 // 恢复气血逻辑
                 if(user->hp + tmp_hp > user->max_hp) {
@@ -34,10 +29,13 @@ int use_item(User *user,int id){
             } else {
                 printf("无法解析物品效果。\n");
             }
+            free(list);
+            free(it);
+            break;
         } 
+    
     }
     // 排序
-    printf("循环end\n");
     sort_item(user);
     // 更新到文件中
     insertUser(user);
@@ -45,9 +43,6 @@ int use_item(User *user,int id){
 }
 
 int battle(User *user,monster *monster){
-
-    printf("进行回合制游戏\n");
-    // 遇敌 
     int tmp_battle = 0;
     int i =1;
 
@@ -60,7 +55,11 @@ int battle(User *user,monster *monster){
             printf("2.使用药品\n");
             printf("3.逃跑\n");
             printf("选择(1~3):");
-            scanf("%d",&tmp_battle);
+            if (scanf("%d",&tmp_battle) != 1) {
+                printf("输入的是无效数据,请重新输入\n");
+                int c; while ((c = getchar()) != '\n' && c != EOF);
+                continue;
+            }
             if(1 == tmp_battle) {
                 //攻击
                 if(user->attack >= monster->HP){
@@ -90,8 +89,16 @@ int battle(User *user,monster *monster){
             } else if (2==tmp_battle){
                 int tmp_yao = 0;
                 show_my(user);
-                printf("选择使用的药品:");
-                scanf("%d",&tmp_yao);
+                while (1)
+                {
+                    printf("选择使用的药品:");
+                    if (scanf("%d",&tmp_yao) != 1) {
+                        printf("输入的是无效数据,请重新输入\n");
+                        int c; while ((c = getchar()) != '\n' && c != EOF);
+                        continue;
+                    }
+                    break;
+                }
                 use_item(user,tmp_yao);         
 
             } else if (3 == tmp_battle){
@@ -130,6 +137,7 @@ int battle(User *user,monster *monster){
                         user->uname,
                         user->hp,
                         user->uname);
+                        insertUser(user);
                         return 2;
                 } else{
                     user->hp -= monster->Attack_power;
@@ -146,7 +154,15 @@ int battle(User *user,monster *monster){
             printf("2.使用药品\n");
             printf("3.逃跑\n");
             printf("选择(1~3):");
-            scanf("%d",&tmp_battle);
+            while (1)
+            {
+                if (scanf("%d",&tmp_battle) != 1) {
+                printf("输入的是无效数据,请重新输入\n");
+                int c; while ((c = getchar()) != '\n' && c != EOF);
+                continue;
+                }
+                break;
+            }
             if(1 == tmp_battle) {
                 //攻击
                 if(user->attack >= monster->HP){
@@ -162,7 +178,6 @@ int battle(User *user,monster *monster){
                         user->gold += monster->gold;
                         levelUpLogic(user,monster->experience);
                         insertUser(user);
-                        break;
                         return 1;
                 } else{
                     monster->HP = monster->HP-user->attack;
@@ -177,8 +192,16 @@ int battle(User *user,monster *monster){
             } else if (2==tmp_battle){
                 int tmp_yao = 0;
                 show_my(user);
-                printf("选择使用的药品()");
-                scanf("%d",&tmp_yao);
+                while (1)
+                {
+                    printf("选择使用的药品:");
+                    if (scanf("%d",&tmp_yao) != 1) {
+                        printf("输入的是无效数据,请重新输入\n");
+                        int c; while ((c = getchar()) != '\n' && c != EOF);
+                        continue;
+                    }
+                    break;
+                }
                 use_item(user,tmp_yao);         
 
             } else if (3 == tmp_battle){
@@ -188,4 +211,5 @@ int battle(User *user,monster *monster){
         i++;
     
     }
+    return 0;
 }
