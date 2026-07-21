@@ -1,6 +1,7 @@
 
 # 忽略单个文件
 a.out
+v1/
 a.exe
 .vacode/
 tian.txt
