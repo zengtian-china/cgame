@@ -2,7 +2,7 @@
 #define _JSON_H_
 #include "cJSON.h"
 #include "player_sv.h"
-//ai给出的
+
 #define GET_INT(field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json, #field); \
     if (_tmp != NULL) user->field = _tmp->valueint; \
@@ -23,6 +23,11 @@
     cJSON_AddItemToArray(root,cJSON_CreateNumber(user->equipment[str])); \
 } while (0)
 
+#define SET_FLOAT(number) do { \
+    char _buf[32]; \
+    snprintf(_buf, sizeof(_buf), "%.2f", user->number); \
+    cJSON_AddRawToObject(root, #number, _buf); \
+} while(0)
 
 cJSON *json_load_file(const char *path);
 int json_save_file(const char *path, cJSON *json);

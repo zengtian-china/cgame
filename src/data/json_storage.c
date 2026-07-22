@@ -154,8 +154,8 @@ cJSON *json_serialize_user(User *user){
     SET_INT(root,speed);
     SET_INT(root,magic_attack);
     SET_INT(root,magic_defense);
-    SET_INT(root,dodge_rate);
-    SET_INT(root,crit_rate);
+    SET_FLOAT(dodge_rate);
+    SET_FLOAT(crit_rate);
     cJSON *equipment = cJSON_CreateArray();
     for(int i=0;i<6;i++) SET_STRING(equipment,i);
     cJSON_AddItemToObject(root,"equipment",equipment);

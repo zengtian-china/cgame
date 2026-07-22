@@ -14,7 +14,7 @@
 //创建角色
 User *create(const char *name, int race, int class_id){
 
-
+    // cJSON_AddRawToObject
 }
 //加载角色
 User *load(const char *name){
@@ -35,7 +35,7 @@ int save(User *user){
 }
 //删除用户内存
 void release(User *user){
-
+    free(user);
 }
 //升级
 void levele_up(User *user){
