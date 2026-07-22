@@ -42,4 +42,13 @@ int contribution;       //门派贡献
 int reputation;         //声望
 }User;
 
+
+typedef struct _fileList{
+    int size;
+    int capacity;  //列表容量
+    char **array;  //字符串数组
+}fileList;
+
+int is_name_exists(char *name);
+fileList *getFileList();
 #endif

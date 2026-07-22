@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<stdbool.h>
+#include<math.h>
 #include<dirent.h>
 #include "player_sv.h"
 #include "json_storage.h"
@@ -94,18 +95,40 @@ int save(User *user){
 void release(User *user){
     free(user);
 }
+
 //升级
 void levele_up(User *user){
 
 }
+
 //加经验
 void add_exp(User *user, int exp){
-
+/*
+1. exp累加到user->exp
+2. 检查是否满足升级条件
+3. 如果满足，调用level_up
+4. 递归检查是否连续升级
+升级所需经验 = 基础经验 × (1.15 ^ (等级 - 1))
+*/
+    int max_exp = 100* pow(1.15, user->level - 1);
+    user->exp += exp;
+    if(user->level <10){
+        while (user->exp >= max_exp)
+        {
+            user->exp = user->exp-max_exp;
+            //升级
+            levele_up(user);
+            
+        }
+    }
 }
 //加金币
 void add_gold(User *user,int gold){
-
+    if(user ==NULL) return;
+    
+    user->gold += gold;
 }
+
 //计算战斗属性
 void calc_battle_stats(User *user){
 
@@ -165,12 +188,6 @@ int main3(){
     
 }
 
-typedef struct _fileList{
-    int size;
-    int capacity;  //列表容量
-    char **array;  //字符串数组
-}fileList;
-
 
 //初始化
 fileList * newFileList(){
@@ -218,12 +235,8 @@ void add_file(fileList *list,char *p){
     strcpy(list->array[list->size], p); 
     list->size++;
 }
-
-
-
-
-//获取文件列表，判断创建的角色名是否已经存在
-int is_name_exists(char *name){
+// 获取角色列表
+fileList *getFileList(){
     DIR *dir = opendir("../../save/");
     if( dir == NULL) 
     {
@@ -232,7 +245,7 @@ int is_name_exists(char *name){
     struct dirent * tmp;
     fileList *list = newFileList();
     if (list == NULL) 
-      {
+    {
         closedir(dir);
         return -1;
     }
@@ -246,6 +259,13 @@ int is_name_exists(char *name){
         }
     }
     closedir(dir);
+    return list;
+}
+
+
+//获取文件列表，判断创建的角色名是否已经存在
+int is_name_exists(char *name){
+    fileList *list = getFileList();
     for(int i=0;i<list->size;i++){
         if(strcmp(list->array[i],name) == 0) 
         {
@@ -259,7 +279,7 @@ int is_name_exists(char *name){
     return 0;
 }
 
-int main(){
+int main5(){
 
     while (1)
     {
@@ -280,9 +300,7 @@ int main(){
     }else{
         printf("新建角色失败，该角色已存在\n");
         break;
-
     }
     }
-    
 
 }
