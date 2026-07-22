@@ -1,0 +1,53 @@
+{
+    "username": "剑心无痕",
+    "level": 45,
+    "exp": 1283500,
+    "gold": 52380,
+    "race": 1,
+    "class": 3,
+
+    "strength": 120,
+    "physique": 95,
+    "endurance": 88,
+    "agility": 135,
+    "intelligence": 60,
+
+    "max_hp": 8500,
+    "hp": 7200,
+    "max_mp": 3200,
+    "mp": 2800,
+    "attack": 1580,
+    "defense": 920,
+    "speed": 210,
+    "magic_attack": 450,
+    "magic_defense": 680,
+    "dodge_rate": 0.15,
+    "crit_rate": 0.23,
+
+    "equipment": [10001, 10023, 10045, 10067, 10089, 10102],
+
+    "inventory": [
+        [20001, 5],
+        [20015, 12],
+        [20033, 1],
+        [20048, 3],
+        [20072, 99],
+        [20100, 1]
+    ],
+    "inventory_count": 6,
+
+    "skills": [
+        [3001, 10],
+        [3005, 8],
+        [3012, 5],
+        [3020, 3]
+    ],
+    "skill_count": 4,
+
+    "current_map": 1003,
+    "pos_x": 256,
+    "pos_y": 128,
+
+    "contribution": 4500,
+    "reputation": 12800
+}

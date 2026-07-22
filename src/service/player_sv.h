@@ -7,6 +7,7 @@ int level;              //等级
 long exp;               //经验
 int gold;               //金币
 int race;               //门派
+int class;              // 门派
 // 基础属性
 int strength;           //力量
 int physique;           //体质
