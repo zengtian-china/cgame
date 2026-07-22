@@ -1,7 +1,6 @@
 #include<stdlib.h>
 #include<stdio.h>
 #include<string.h>
-#include "cJSON.h"
 #include "json_storage.h"
 
 cJSON *json_load_file(const char *path){
@@ -30,23 +29,12 @@ cJSON *json_load_file(const char *path){
         return NULL;
     }
     strs[size] = '\0';
-    printf("%s\n",strs);
     cJSON *json_root = cJSON_Parse(strs);
+    printf("%s",strs);
     free(strs);
     fclose(fp);
     return json_root;
 }
-
-// int main(){
-//     cJSON *json_root = json_load_file("user.json");
-//     User *user = json_parse_user(json_root);
-//     cJSON_Delete(json_root);
-//     printf("username:%s \n",user->username);
-//     printf("打印json数据\n");
-//     cJSON *root = json_serialize_user(user);
-//     free(user);
-//     cJSON_Delete(root);
-// }
 
 User *json_parse_user(cJSON *json){
     // 创建一个对象 
@@ -193,7 +181,33 @@ cJSON *json_serialize_user(User *user){
     SET_INT(root,pos_y);
     SET_INT(root,contribution);
     SET_INT(root,reputation);
-    char *arry = cJSON_Print(root);
-    printf("%s\n",arry);
     return root;
+}
+
+
+int json_save_file(const char *path, cJSON *json){
+    printf("path :%s\n",path);
+    FILE *fp = fopen(path,"w");
+    if (fp == NULL) {
+        printf("文件写入失败\n");
+        fclose(fp);  
+        return -1;
+    }
+    char * strs = cJSON_Print(json);
+    if (strs == NULL){
+        printf("json数据为空\n");
+        fclose(fp);
+        return -1;
+    }
+    int ww = fprintf(fp, "%s", strs);
+    if( ww <0) {
+        printf("写入失败\n");
+        fclose(fp);  
+        return -1;
+    }
+    printf("%s\n",strs);
+    fclose(fp);
+    free(strs);
+    return 0;
+
 }
