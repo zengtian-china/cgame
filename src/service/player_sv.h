@@ -6,7 +6,7 @@ char username[20];      //用户名
 int level;              //等级
 long exp;               //经验
 int gold;               //金币
-int race;               //门派
+int race;               //种族
 int class;              // 门派
 // 基础属性
 int strength;           //力量
@@ -42,4 +42,14 @@ int contribution;       //门派贡献
 int reputation;         //声望
 }User;
 
+
+typedef struct _fileList{
+    int size;
+    int capacity;  //列表容量
+    char **array;  //字符串数组
+}fileList;
+
+int is_name_exists(char *name);
+fileList *getFileList();
+void calc_battle_stats(User *user);
 #endif
