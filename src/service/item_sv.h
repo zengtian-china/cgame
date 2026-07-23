@@ -15,7 +15,7 @@ typedef struct _item{
     ItemType type;              /* 决定行为 */
     int      max_stack;         /* 消耗品=99, 装备=1 */
     int      price;             /* 商店售价 */
-    char     desc[128];         /* 描述文本 */
+    char     desc[256];         /* 描述文本 */
 
     /* ===== 装备专属字段（非装备时全为 0，不影响） ===== */
     int      slot;              /* 装备槽位 0~5 */

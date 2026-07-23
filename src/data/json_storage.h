@@ -3,17 +3,18 @@
 #include "cJSON.h"
 #include "player_sv.h"
 #include "equip_sv.h"
+#include "item_sv.h"
 // #include "equip_sv.h"
 #define GET_INT(user,field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json, #field); \
-    if (_tmp != NULL) user->field = _tmp->valueint; \
+    if (_tmp && _tmp->valueint) user->field = _tmp->valueint; \
 } while(0)
 
 #define GET_STRING(user,field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json,#field);\
-    if(_tmp!=NULL){\
-         strncpy(user->field,_tmp->valuestring,255);\
-        user->field[255] = '\0';\
+    if(_tmp && _tmp->valuestring ){\
+         strncpy(user->field,_tmp->valuestring,sizeof(user->field) -1);\
+        user->field[sizeof(user->field)-1] = '\0';\
     }} while(0)
 
 #define GET_FLOAT(user,number) do{ \
@@ -57,8 +58,8 @@ Equips *json_parse_equipment(cJSON *json);
 
 cJSON *json_serialize_equipment(Equips *equip);
 
-// Item *json_parse_item(cJSON *json);
-// cJSON *json_serialize_item(Item *item);
+ItemConfig *json_parse_item(cJSON *json);
+cJSON *json_serialize_item(ItemConfig *item);
 
 // Task *json_parse_task(cJSON *json);
 // cJSON *json_serialize_task(Task *task);

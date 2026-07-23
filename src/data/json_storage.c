@@ -260,3 +260,23 @@ cJSON *json_serialize_equipment(Equips *equips){
     cJSON_AddStringToObject(root,"description",equips->description);
     return root;
 }
+
+
+
+ItemConfig *json_parse_item(cJSON *json){
+    ItemConfig * item = calloc(1,sizeof(ItemConfig));
+    if (!item) return NULL;
+    GET_INT(item,id);
+    GET_STRING(item,name);
+    GET_INT(item,type);
+    // GET_INT(item,)
+    
+
+}
+
+
+
+
+
+
+cJSON *json_serialize_item(ItemConfig *item);
