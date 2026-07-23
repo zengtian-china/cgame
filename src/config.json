@@ -1,0 +1,29 @@
+{
+  "game": {
+    "name": "梦幻文字版",
+    "version": "2.0.0",
+    "max_users": 5,
+    "auto_save_interval": 60,
+    "debug_mode": true
+  },
+  "battle": {
+    "crit_rate_base": 3.0,
+    "dodge_rate_base": 5.0,
+    "escape_rate": 0.7,
+    "exp_loss_on_death": 0.1
+  },
+  "player": {
+    "base_hp": 120,
+    "base_mp": 200,
+    "base_attack": 8,
+    "base_defense": 3,
+    "base_speed": 2,
+    "level_exp_base": 100,
+    "level_exp_multiplier": 1.15
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "log/game.log",
+    "max_size": 1024000
+  }
+}

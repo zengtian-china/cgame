@@ -13,8 +13,39 @@
 玩家服务：创建、加载、保存、升级
 ─ json_storage
 ── memory_pool
-
 */
+#define LEVELE(number) (int)((tmp_rece.rece_array[number]+tmp_class.class_array[number])*user->level);
+
+typedef struct _race{
+    char name[50];
+    int id;
+    char rece_array[5];
+}rece_dict;
+
+static rece_dict array[3] = {
+    {"人族",1,{1,1,0,1,0}},
+    {"仙族",2,{0,0,1,1,2}},
+    {"魔族",3,{2,1,0,0,0}}
+};
+
+typedef struct _class{
+    int id;
+    int rece_id;
+    char name[50];
+    char class_array[5];
+}class_dict;
+
+static class_dict class_array[10] = {
+    {1,1,"大唐官府",{2,1,1,1,1}},
+    {2,1,"方寸山",{1,1,1,2,1}},
+    {3,1,"化生寺",{1,2,2,1,1}},
+    {4,2,"龙宫",{1,1,1,1,3}},
+    {5,2,"普陀山",{1,2,1,1,2}},
+    {6,2,"天宫",{1,1,1,1,1}},
+    {7,3,"狮驼岭",{3,1,1,1,1}},
+    {8,3,"魔王寨",{1,1,1,1,3}},
+    {9,3,"阴曹地府",{1,1,1,1,1}}
+};
 
 //创建角色
 User *create(const char *name, int race, int class_id){
@@ -29,11 +60,13 @@ User *create(const char *name, int race, int class_id){
     user->race = race;
     user->class = class_id;
     // 五维基础属性
-    user->strength = 10;
-    user->physique = 10;
-    user->endurance = 10;
-    user->agility = 10;
-    user->intelligence = 10;
+    rece_dict tmp_rece = array[user->race-1];
+    class_dict tmp_class = class_array[user->class-1];
+    user->strength = 5+tmp_rece.rece_array[0]+tmp_class.class_array[0];
+    user->physique = 5+tmp_rece.rece_array[1]+tmp_class.class_array[1];
+    user->endurance = 5+tmp_rece.rece_array[2]+tmp_class.class_array[2];
+    user->agility = 5+tmp_rece.rece_array[3]+tmp_class.class_array[3];
+    user->intelligence = 5+tmp_rece.rece_array[4]+tmp_class.class_array[4];
     // 战斗属性
     user->max_hp = 200;
     user->hp = 200;
@@ -96,10 +129,64 @@ void release(User *user){
     free(user);
 }
 
+
 //升级
 void levele_up(User *user){
-
+    //等级升一级
+    user->level++;
+    user->gold+= 100*user->level;
+    rece_dict tmp_rece = array[user->race-1];
+    class_dict tmp_class = class_array[user->class-1];
+    user->strength += LEVELE(0);
+    user->physique += LEVELE(1);
+    user->endurance += LEVELE(2);
+    user->agility += LEVELE(3);
+    user->intelligence += LEVELE(4);
+    /*
+    user->max_hp = base_hp + user->physique * 5 + user->level * 10;
+    user->max_mp = base_mp + user->intelligence * 3 + user->level * 5;
+    user->attack = base_atk + (int)(user->strength * 0.8) + user->level / 2;
+    user->defense = base_def + (int)(user->endurance * 0.6) + (int)(user->level * 0.3);
+    user->speed = base_spd + (int)(user->agility * 0.7) + (int)(user->level * 0.2);
+    user->magic_attack = (int)(user->intelligence * 0.7) + (int)(user->level * 0.3);
+    user->magic_defense = (int)(user->endurance * 0.3) + (int)(user->level * 0.15);
+    user->dodge_rate = user->agility * 0.5f;
+    user->crit_rate = config_get_float("battle.crit_rate_base", 3.0f);
+    */
 }
+void calc_battle_stats(User *user)
+{
+    if (!user) return;
+    
+    // int base_hp = config_get_int("player.base_hp", 120);
+    // int base_mp = config_get_int("player.base_mp", 200);
+    // int base_atk = config_get_int("player.base_attack", 8);
+    // int base_def = config_get_int("player.base_defense", 3);
+    // int base_spd = config_get_int("player.base_speed", 2);
+    int base_hp = 120;
+    int base_mp = 200;
+    int base_atk = 8;
+    int base_def = 3;
+    int base_spd = 2;
+    
+    user->max_hp = base_hp + user->physique * 5 + user->level * 10;
+    user->max_mp = base_mp + user->intelligence * 3 + user->level * 5;
+    user->attack = base_atk + (int)(user->strength * 0.8) + user->level / 2;
+    user->defense = base_def + (int)(user->endurance * 0.6) + (int)(user->level * 0.3);
+    user->speed = base_spd + (int)(user->agility * 0.7) + (int)(user->level * 0.2);
+    user->magic_attack = (int)(user->intelligence * 0.7) + (int)(user->level * 0.3);
+    user->magic_defense = (int)(user->endurance * 0.3) + (int)(user->level * 0.15);
+    user->dodge_rate = user->agility * 0.005f;
+    user->crit_rate = 0.03f;
+    
+    /* 加上装备加成 */
+    for (int i = 0; i < 6; i++) {
+        if (user->equipment[i] >= 0) {
+            /* 装备加成在equip_sv中计算，这里预留接口 */
+        }
+    }
+}
+
 
 //加经验
 void add_exp(User *user, int exp){
@@ -111,16 +198,17 @@ void add_exp(User *user, int exp){
 升级所需经验 = 基础经验 × (1.15 ^ (等级 - 1))
 */
     int max_exp = 100* pow(1.15, user->level - 1);
+    if (exp <0) return;
     user->exp += exp;
-    if(user->level <10){
-        while (user->exp >= max_exp)
-        {
-            user->exp = user->exp-max_exp;
-            //升级
-            levele_up(user);
-            
-        }
+
+    while (user->exp >= max_exp)
+    {
+        user->exp = user->exp-max_exp;
+        //升级
+        levele_up(user);
+        
     }
+    
 }
 //加金币
 void add_gold(User *user,int gold){
