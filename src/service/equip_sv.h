@@ -2,7 +2,6 @@
 #ifndef _EQUIP_H_
 #define _EQUIP_H_
 #include "player_sv.h"
-#include "json_storage.h"
 typedef struct _equips{
     int id;
     char name[50];
@@ -33,5 +32,15 @@ int equip(User *user, int equip_id);
 //卸下装备
 int unequip(User *user, int slot);
 void calc_bonus(User *user);
+
+
+typedef struct {
+    int (*init)(const char *path);
+    Equips *(*get_by_id)(int id);
+    int (*equip)(User *user, int equip_id);
+    int (*unequip)(User *user, int slot);
+    void (*calc_bonus)(User *user);
+    void (*release)(void);
+} EquipmentService;
 
 #endif

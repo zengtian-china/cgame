@@ -30,7 +30,6 @@ cJSON *json_load_file(const char *path){
     }
     strs[size] = '\0';
     cJSON *json_root = cJSON_Parse(strs);
-    printf("%s",strs);
     free(strs);
     fclose(fp);
     return json_root;

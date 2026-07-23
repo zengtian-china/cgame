@@ -3,6 +3,7 @@
 #include "cJSON.h"
 #include "player_sv.h"
 #include "equip_sv.h"
+// #include "equip_sv.h"
 #define GET_INT(user,field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json, #field); \
     if (_tmp != NULL) user->field = _tmp->valueint; \
@@ -36,6 +37,9 @@
     cJSON_AddRawToObject(root, #number, _buf); \
 } while(0)
 
+
+
+
 cJSON *json_load_file(const char *path);
 int json_save_file(const char *path, cJSON *json);
 void json_free(cJSON *json);
@@ -50,6 +54,7 @@ cJSON *json_serialize_user(User *user);
 // cJSON *json_serialize_skill(Skill *skill);
 
 Equips *json_parse_equipment(cJSON *json);
+
 cJSON *json_serialize_equipment(Equips *equip);
 
 // Item *json_parse_item(cJSON *json);
