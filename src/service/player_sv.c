@@ -218,9 +218,9 @@ void add_gold(User *user,int gold){
 }
 
 //计算战斗属性
-void calc_battle_stats(User *user){
+// void calc_battle_stats(User *user){
 
-}
+// }
 
 
 
@@ -328,14 +328,14 @@ fileList *getFileList(){
     DIR *dir = opendir("../../save/");
     if( dir == NULL) 
     {
-        return -1;
+        return NULL;
     }
     struct dirent * tmp;
     fileList *list = newFileList();
     if (list == NULL) 
     {
         closedir(dir);
-        return -1;
+        return NULL;
     }
     while ((tmp =readdir(dir)) != NULL)
     {

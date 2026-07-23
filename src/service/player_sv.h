@@ -51,4 +51,5 @@ typedef struct _fileList{
 
 int is_name_exists(char *name);
 fileList *getFileList();
+void calc_battle_stats(User *user);
 #endif

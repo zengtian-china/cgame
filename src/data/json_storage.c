@@ -45,33 +45,33 @@ User *json_parse_user(cJSON *json){
     }
     cJSON *username = cJSON_GetObjectItem(json,"username");
     if (username !=NULL) strcpy(user->username,username->valuestring);
-    GET_INT(level);
-    GET_INT(exp);          // ✅ long 用 valuedouble 转换
-    GET_INT(gold);
-    GET_INT(race);  
-    GET_INT(class);
+    GET_INT(user,level);
+    GET_INT(user,exp);          // ✅ long 用 valuedouble 转换
+    GET_INT(user,gold);
+    GET_INT(user,race);  
+    GET_INT(user,class);
 
     // ========== 基础属性 ==========
-    GET_INT(strength);
-    GET_INT(physique);
-    GET_INT(endurance);
-    GET_INT(agility);
-    GET_INT(intelligence);
+    GET_INT(user,strength);
+    GET_INT(user,physique);
+    GET_INT(user,endurance);
+    GET_INT(user,agility);
+    GET_INT(user,intelligence);
 
     // ========== 战斗属性 ==========
-    GET_INT(max_hp);
-    GET_INT(hp);
-    GET_INT(max_mp);
-    GET_INT(mp);
-    GET_INT(attack);
-    GET_INT(defense);
-    GET_INT(speed);
-    GET_INT(magic_attack);
-    GET_INT(magic_defense);
+    GET_INT(user,max_hp);
+    GET_INT(user,hp);
+    GET_INT(user,max_mp);
+    GET_INT(user,mp);
+    GET_INT(user,attack);
+    GET_INT(user,defense);
+    GET_INT(user,speed);
+    GET_INT(user,magic_attack);
+    GET_INT(user,magic_defense);
 
     
-    GET_FLOAT(dodge_rate);
-    GET_FLOAT(crit_rate);
+    GET_FLOAT(user,dodge_rate);
+    GET_FLOAT(user,crit_rate);
      // ========== 装备 (数组) ==========
     cJSON *equipment = cJSON_GetObjectItem(json, "equipment");
     if (equipment != NULL && cJSON_IsArray(equipment)) {
@@ -100,7 +100,7 @@ User *json_parse_user(cJSON *json){
             }
         }
     }
-    GET_INT(inventory_count);
+    GET_INT(user,inventory_count);
 
     // ========== 技能 (二维数组) ==========
     cJSON *skills = cJSON_GetObjectItem(json, "skills");
@@ -117,15 +117,15 @@ User *json_parse_user(cJSON *json){
             }
         }
     }
-    GET_INT(skill_count);
+    GET_INT(user,skill_count);
 
     // ========== 位置 ==========
-    GET_INT(current_map);
-    GET_INT(pos_x);
-    GET_INT(pos_y);
+    GET_INT(user,current_map);
+    GET_INT(user,pos_x);
+    GET_INT(user,pos_y);
     // ========== 其他 ==========
-    GET_INT(contribution);
-    GET_INT(reputation);
+    GET_INT(user,contribution);
+    GET_INT(user,reputation);
 
     return user;
 }
@@ -134,28 +134,28 @@ cJSON *json_serialize_user(User *user){
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root,"username",user->username);
     cJSON_AddNumberToObject(root,"level",user->level);
-    SET_INT(root,exp);
-    SET_INT(root,gold);
-    SET_INT(root,race);
-    SET_INT(root,class);
+    SET_INT(user,exp);
+    SET_INT(user,gold);
+    SET_INT(user,race);
+    SET_INT(user,class);
     //基础属性
-    SET_INT(root,strength);
-    SET_INT(root,physique);
-    SET_INT(root,endurance);
-    SET_INT(root,agility);
-    SET_INT(root,intelligence);
+    SET_INT(user,strength);
+    SET_INT(user,physique);
+    SET_INT(user,endurance);
+    SET_INT(user,agility);
+    SET_INT(user,intelligence);
     //战斗属性
-    SET_INT(root,max_hp);
-    SET_INT(root,hp);
-    SET_INT(root,max_mp);
-    SET_INT(root,mp);
-    SET_INT(root,attack);
-    SET_INT(root,defense);
-    SET_INT(root,speed);
-    SET_INT(root,magic_attack);
-    SET_INT(root,magic_defense);
-    SET_FLOAT(dodge_rate);
-    SET_FLOAT(crit_rate);
+    SET_INT(user,max_hp);
+    SET_INT(user,hp);
+    SET_INT(user,max_mp);
+    SET_INT(user,mp);
+    SET_INT(user,attack);
+    SET_INT(user,defense);
+    SET_INT(user,speed);
+    SET_INT(user,magic_attack);
+    SET_INT(user,magic_defense);
+    SET_FLOAT(user,dodge_rate);
+    SET_FLOAT(user,crit_rate);
     cJSON *equipment = cJSON_CreateArray();
     for(int i=0;i<6;i++) SET_STRING(equipment,i);
     cJSON_AddItemToObject(root,"equipment",equipment);
@@ -166,7 +166,7 @@ cJSON *json_serialize_user(User *user){
         cJSON_AddItemToArray(tmp,cJSON_CreateNumber(user->invertory[i][1]));
         cJSON_AddItemToArray(invertory,tmp);
     }
-    SET_INT(root,inventory_count);
+    SET_INT(user,inventory_count);
     cJSON *tmp_skills = cJSON_CreateArray();
     for(int i =0;i<user->skill_count;i++){
         cJSON *tmp_1 = cJSON_CreateArray();
@@ -175,12 +175,12 @@ cJSON *json_serialize_user(User *user){
         cJSON_AddItemToArray(tmp_skills,tmp_1);
     }
     cJSON_AddItemToObject(root,"skills",tmp_skills);
-    SET_INT(root,skill_count);
-    SET_INT(root,current_map);
-    SET_INT(root,pos_x);
-    SET_INT(root,pos_y);
-    SET_INT(root,contribution);
-    SET_INT(root,reputation);
+    SET_INT(user,skill_count);
+    SET_INT(user,current_map);
+    SET_INT(user,pos_x);
+    SET_INT(user,pos_y);
+    SET_INT(user,contribution);
+    SET_INT(user,reputation);
     return root;
 }
 
@@ -210,4 +210,54 @@ int json_save_file(const char *path, cJSON *json){
     free(strs);
     return 0;
 
+}
+
+
+Equips *json_parse_equipment(cJSON *json){
+    Equips *equips = calloc(1,sizeof(Equips));
+    if (equips == NULL){
+        printf("申请空间失败\n");
+        return NULL;
+    }
+    GET_INT(equips,id);
+    cJSON *name = cJSON_GetObjectItem(json,"name");
+    if (name !=NULL) strcpy(equips->name,name->valuestring);
+    GET_INT(equips,slot);
+    GET_INT(equips,quality);
+    GET_INT(equips,level_require);
+    GET_INT(equips,attack_bonus);
+    GET_INT(equips,defense_bonus);
+    GET_INT(equips,speed_bonus);
+    GET_INT(equips,magic_attack_bonus);
+    GET_INT(equips,magic_defense_bonus);
+    GET_INT(equips,max_hp_bonus);
+    GET_INT(equips,max_mp_bonus);
+    GET_FLOAT(equips,crit_bonus);
+    GET_FLOAT(equips,dodge_bonus);
+    GET_INT(equips,set_id);
+    GET_INT(equips,price);
+    GET_STRING(equips,description);
+    return equips;
+}
+
+cJSON *json_serialize_equipment(Equips *equips){
+    cJSON *root = cJSON_CreateObject();
+    SET_INT(equips,id);
+    cJSON_AddStringToObject(root,"name",equips->name);
+    SET_INT(equips,slot);
+    SET_INT(equips,quality);
+    SET_INT(equips,level_require);
+    SET_INT(equips,attack_bonus);
+    SET_INT(equips,defense_bonus);
+    SET_INT(equips,speed_bonus);
+    SET_INT(equips,magic_attack_bonus);
+    SET_INT(equips,magic_defense_bonus);
+    SET_INT(equips,max_hp_bonus);
+    SET_INT(equips,max_mp_bonus);
+    SET_FLOAT(equips,crit_bonus);
+    SET_FLOAT(equips,dodge_bonus);
+    SET_INT(equips,set_id);
+    SET_INT(equips,price);
+    cJSON_AddStringToObject(root,"description",equips->description);
+    return root;
 }

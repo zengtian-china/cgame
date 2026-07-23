@@ -2,6 +2,7 @@
 #include<string.h>
 #include<stdlib.h>
 #include "equip_sv.h"
+
 /*
 equip_sv
 
@@ -13,11 +14,25 @@ equip_sv.c
 
 
 //装备配置文件路径
-int init(const char *path){
+int init(){
+    //初始化路径 
+    char *path = "../../data/equips.json";
+    cJSON *root= json_load_file(path);
+    int size = cJSON_GetArraySize(root);
+    for(int i=0;i<size;i++){
+
+    
+        Equips* equips = json_parse_equipment(root);
+        char* str = cJSON_Print(root);
+        printf("%s\n",str);
+    }
 
 }
 
-
+int main(){
+    init();
+    return 0;
+}
 //获取装备信息
 Equips *get_by_id(int id){
 

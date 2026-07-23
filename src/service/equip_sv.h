@@ -2,6 +2,7 @@
 #ifndef _EQUIP_H_
 #define _EQUIP_H_
 #include "player_sv.h"
+#include "json_storage.h"
 typedef struct _equips{
     int id;
     char name[50];
@@ -15,16 +16,16 @@ typedef struct _equips{
     int magic_defense_bonus;
     int max_hp_bonus;
     int max_mp_bonus;
-    int crit_bonus;
-    int dodge_bonus;
+    float crit_bonus;
+    float dodge_bonus;
     int set_id;
     int price;
-    int description;
+    char description[256];
 
 }Equips;
 
 //装备配置文件路径
-int init(const char *path);
+int init();
 //获取装备信息
 Equips *get_by_id(int id);
 //穿戴装备
