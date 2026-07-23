@@ -12,7 +12,7 @@ int config_load()
 
     FILE *fp = fopen(path, "rb");
     if (!fp) {
-        LOGE("config_load: 打开失败: %s", path);
+        printf("config_load: 打开失败: %s", path);
         return -1;
     }
 
@@ -20,7 +20,7 @@ int config_load()
     fseek(fp, 0, SEEK_END);
     long size = ftell(fp);
     if (size < 0) {
-        LOGE("config_load: ftell 失败");
+        printf("config_load: ftell 失败");
         fclose(fp);
         return -1;
     }
@@ -28,14 +28,14 @@ int config_load()
 
     /* 空文件也挡一下 */
     if (size == 0) {
-        LOGE("config_load: 文件为空: %s", path);
+        printf("config_load: 文件为空: %s", path);
         fclose(fp);
         return -1;
     }
 
     char *buf = (char *)malloc((size_t)size + 1);
     if (!buf) {
-        LOGE("config_load: malloc 失败 (%ld 字节)", size);
+        printf("config_load: malloc 失败 (%ld 字节)", size);
         fclose(fp);
         return -1;
     }
@@ -45,7 +45,7 @@ int config_load()
     fclose(fp);                    /* ② 无论成败都关文件 */
 
     if (got != (size_t)size) {
-        LOGE("config_load: 读取不完整 (%zu/%ld)", got, size);
+        printf("config_load: 读取不完整 (%zu/%ld)", got, size);
         free(buf);
         return -1;
     }
@@ -56,7 +56,7 @@ int config_load()
     free(buf);                     /* 解析完立即释放，不管成功失败 */
 
     if (!parsed) {
-        LOGE("config_load: JSON 解析失败: %s", cJSON_GetErrorPtr());
+        printf("config_load: JSON 解析失败: %s", cJSON_GetErrorPtr());
         return -1;
     }
 
@@ -66,6 +66,46 @@ int config_load()
     }
     g_config = parsed;
 
-    LOGI("config_load: 加载成功: %s (%ld 字节)", path, size);
+    printf("config_load: 加载成功: %s (%ld 字节)", path, size);
     return 0;                      /* ③ 有明确返回值 */
+}
+
+cJSON * config_get_json(const char *key){
+        if(g_config ==NULL || key == NULL) return NULL;
+        char tmp[256];
+        strncpy(tmp,key,sizeof(tmp)-1);
+        tmp[sizeof(tmp)-1] = '\0';
+        char * key1 = strstr(tmp,"."); //拿到了bash_hp
+        if (key1 == NULL) return NULL;
+        char *field = key1 + 1; 
+        char * key2 = strtok(tmp,"."); //拿到了player
+        if(key2 == NULL) return NULL;
+        cJSON *player = cJSON_GetObjectItem(g_config,key2);
+        if(player == NULL) return NULL;
+        cJSON *tmp_json = cJSON_GetObjectItem(player,field);
+        return tmp_json;
+}
+
+int config_get_int(char *key,int value){
+    cJSON *tmp_json = config_get_json(key);
+    if (tmp_json !=NULL && cJSON_IsNumber(tmp_json)){
+        return tmp_json->valueint;
+    }
+    return value;
+}
+
+float config_get_float(const char *key, float default_val){    
+    cJSON *tmp_json = config_get_json(key);
+    if (tmp_json !=NULL && cJSON_IsNumber(tmp_json)){
+        return (float)tmp_json->valuedouble;
+    }
+    return default_val;
+}
+
+const char *config_get_string(const char *key, const char *default_val){
+        cJSON *tmp_json = config_get_json(key);
+        if (tmp_json !=NULL && cJSON_IsString(tmp_json)){
+            return tmp_json->valuestring;
+        }
+        return default_val;
 }

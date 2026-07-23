@@ -8,7 +8,7 @@
  * @param path 配置文件路径
  * @return 0成功，-1失败
  */
-int config_load(const char *path);
+int config_load();
 
 /**
  * @brief 保存配置文件
@@ -41,5 +41,5 @@ const char *config_get_string(const char *key, const char *default_val);
  * @brief 关闭配置管理
  */
 void config_close(void);
-
+    
 #endif
