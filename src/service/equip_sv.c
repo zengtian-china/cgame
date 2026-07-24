@@ -19,7 +19,7 @@ static int g_equip_count = 0;
 //装备配置文件路径
 int init(void)
 {
-    const char *path = "../../data/equips.json";
+    const char *path = "../../data/items.json";
     cJSON *root = json_load_file(path);
     if (!root) return -1;
     int size = cJSON_GetArraySize(root);

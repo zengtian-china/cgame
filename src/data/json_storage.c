@@ -260,3 +260,67 @@ cJSON *json_serialize_equipment(Equips *equips){
     cJSON_AddStringToObject(root,"description",equips->description);
     return root;
 }
+
+
+
+ItemConfig *json_parse_item(cJSON *json){
+    ItemConfig * item = calloc(1,sizeof(ItemConfig));
+    if (!item) return NULL;
+    GET_INT(item,id);
+    GET_STRING(item,name);
+    GET_INT(item,type);
+    // GET_INT(item,)
+    GET_ENUM(item,type,str_type_to_item);
+    GET_INT(item,max_stack);
+    GET_INT(item,price);
+    GET_STRING(item,desc);
+    //判断类型
+    if(item->type ==ITEM_TYPE_EQUIPMENT){
+        //装备类型
+        GET_INT(item,slot);
+        GET_INT(item,level_require);
+        GET_INT(item,attack_bonus);
+        GET_INT(item,defense_bonus);
+        GET_INT(item,speed_bonus);
+        GET_INT(item,magic_attack_bonus);
+        GET_INT(item,magic_defense_bonus);
+        GET_INT(item,max_hp_bonus);
+        GET_INT(item,max_mp_bonus);
+        GET_FLOAT(item,crit_bonus);
+        GET_FLOAT(item,dodge_bonus);
+    }
+    return item;
+}
+
+
+
+
+
+
+cJSON *json_serialize_item(ItemConfig *item){
+    //item 转成 json
+    cJSON *root = cJSON_CreateObject();
+    SET_INT(item,id);
+    cJSON_AddStringToObject(root,"name",item->name);
+    // type
+    SET_ENUM(item,type,item_type_to_str);
+    SET_INT(item,max_stack);
+    SET_INT(item,price);
+    cJSON_AddStringToObject(root,"desc",item->desc);
+
+    // 判断类型是不是装备类型
+    if(item->type == ITEM_TYPE_EQUIPMENT){
+        SET_INT(item,slot);
+        SET_INT(item,level_require);
+        SET_INT(item,attack_bonus);
+        SET_INT(item,defense_bonus);
+        SET_INT(item,speed_bonus);
+        SET_INT(item,magic_attack_bonus);
+        SET_INT(item,magic_defense_bonus);
+        SET_INT(item,max_hp_bonus);
+        SET_INT(item,max_mp_bonus);
+        SET_FLOAT(item,crit_bonus);
+        SET_FLOAT(item,dodge_bonus);
+    }
+    return root;
+}
