@@ -1,10 +1,13 @@
 #ifndef _JSON_H_
 #define _JSON_H_
 #include "cJSON.h"
+#include <string.h>
 #include "player_sv.h"
 #include "equip_sv.h"
 #include "item_sv.h"
 // #include "equip_sv.h"
+
+
 #define GET_INT(user,field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json, #field); \
     if (_tmp && _tmp->valueint) user->field = _tmp->valueint; \
@@ -37,6 +40,33 @@
     snprintf(_buf, sizeof(_buf), "%.2f", user->number); \
     cJSON_AddRawToObject(root, #number, _buf); \
 } while(0)
+
+
+// 从json中拿到的枚举类型 是一个字符串
+ItemType str_type_to_item(const char * str) {
+    if (str == NULL) return -1;
+    #define X(a,b,c) if(strcmp(c,str) == 0) return a;
+    TMP_TIAN(X)
+    #undef X
+    return -1;
+}
+
+#define GET_ENUM(user,xx,cc)  do{ \
+    cJSON *_tmp = cJSON_GetObjectItem(json,#xx);      \
+    if (_tmp && _tmp->valuestring) user->xx = (cc)(_tmp->valuestring); \
+}while(0)
+
+char * item_type_to_str(ItemType xx){
+    #define X(a,b,c) if(xx == a) return c;
+    TMP_TIAN(X)
+    #undef X
+    return "unknown";
+}
+
+#define SET_ENUM(user,xx,cc) do{ \
+    cJSON_AddStringToObject(root,#xx,(cc)(user->xx)); \
+}while(0)
+
 
 
 
