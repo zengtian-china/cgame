@@ -1,6 +1,6 @@
 #ifndef _ITEM_SV_H_
 #define _ITEM_SV_H_
-
+#include "player_sv.h"
 #define TMP_TIAN(X) \
     X(ITEM_TYPE_CONSUMABLE,0,"consumable") \
     X(ITEM_TYPE_MATERIAL,1,"material") \

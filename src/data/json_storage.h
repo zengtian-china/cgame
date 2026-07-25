@@ -68,9 +68,6 @@ char * item_type_to_str(ItemType xx){
 }while(0)
 
 
-
-
-
 cJSON *json_load_file(const char *path);
 int json_save_file(const char *path, cJSON *json);
 void json_free(cJSON *json);
