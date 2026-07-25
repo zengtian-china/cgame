@@ -18,12 +18,22 @@ int EquipFromInventory(User *user, int inventory_index){
     }
     //获取装备slot 是否是正常参数
     if(item->slot>=SLOT_MAX || item->slot <ZERO) return -1;
+    //判断是否够等级
+    if(item->level_require > user->level){
+        printf("等级不够，不能穿戴装备\n");
+        return -1;
+    }
     //定义一个临时数，存放装备id
     int tmp = user->equipment[item->slot];
     //穿上装备
     user->equipment[item->slot] = user->invertory[inventory_index][0];
     //卸下来的装备存放到背包中
     user->invertory[inventory_index][0] = tmp;
+
+    //将数据初始化，移除了装备带来的数据加成
+    calc_battle_stats(user);
+    //  重新计算战斗属性（移除装备加成）
+    equip_sv_apply_stats(user);
     //返回成功值
     return 0;
 }
@@ -51,6 +61,11 @@ int EquipDirectly(User *user, int equip_id){
         printf("物品不存在或不是装备\n");
         return -1;
     } 
+    //判断是否够等级
+    if(equips->level_require > user->level){
+        printf("等级不够，不能穿戴装备\n");
+        return -1;
+    }
     //装备栏
     if(user->equipment[equips->slot] >0){
         //装备栏有东西了,将装备卸下
@@ -65,6 +80,10 @@ int EquipDirectly(User *user, int equip_id){
         }
     } else{
         user->equipment[equips->slot] = equip_id;
+        //将数据初始化，移除了装备带来的数据加成
+        calc_battle_stats(user);
+        //  重新计算战斗属性（移除装备加成）
+        equip_sv_apply_stats(user);
         return 0;
     }
     
@@ -72,7 +91,6 @@ int EquipDirectly(User *user, int equip_id){
 
 }
 
-//卸下装备槽
 /*
     0 正常卸下装备
     1 输入数据异常
@@ -80,6 +98,7 @@ int EquipDirectly(User *user, int equip_id){
     3 装备槽没有装备
     4 装备槽的装备不存在物品表中
 */
+//卸下装备槽
 int Unslot(User *user,int slot){
     // 先将物品排序,预留函数位置
 
@@ -108,6 +127,15 @@ int Unslot(User *user,int slot){
      user->inventory_count++;
     //将装备槽的装备标识位设置为-1
     user->equipment[slot] = -1;
+    //将数据初始化，移除了装备带来的数据加成
+    calc_battle_stats(user);
+    //  重新计算战斗属性（移除装备加成）
+    equip_sv_apply_stats(user);
+
+
+
+
+
     return 0;
 }
 
@@ -115,6 +143,27 @@ int Unslot(User *user,int slot){
 //装备出售操作
 
 //自动穿戴装备
+
+//计算装备属性 数据会不断累加，bug
+void equip_sv_apply_stats(User *user){
+    if (!user) return;
+    for(int i =0;i<SLOT_MAX;i++){
+        // 获取装备id
+        ItemConfig * item = item_mgr_get_by_id(user->equipment[i]);
+        //判断是否是装备，装备是否存在
+        if( !item && item->type!=ITEM_TYPE_EQUIPMENT) return ;
+        user->attack += item->attack_bonus;
+        user->defense += item->defense_bonus;
+        user->speed += item->speed_bonus;
+        user->magic_attack += item->magic_attack_bonus;
+        user->magic_defense += item->magic_defense_bonus;
+        user->max_hp += item->max_hp_bonus;
+        user->max_mp += item->max_mp_bonus;
+        user->crit_rate += item->crit_bonus;
+        user->dodge_rate += item->dodge_bonus;
+    }
+}
+
 
 
 int main(){

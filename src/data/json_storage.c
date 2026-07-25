@@ -212,54 +212,54 @@ int json_save_file(const char *path, cJSON *json){
 }
 
 
-Equips *json_parse_equipment(cJSON *json){
-    Equips *equips = calloc(1,sizeof(Equips));
-    if (equips == NULL){
-        printf("申请空间失败\n");
-        return NULL;
-    }
-    GET_INT(equips,id);
-    cJSON *name = cJSON_GetObjectItem(json,"name");
-    if (name !=NULL) strcpy(equips->name,name->valuestring);
-    GET_INT(equips,slot);
-    GET_INT(equips,quality);
-    GET_INT(equips,level_require);
-    GET_INT(equips,attack_bonus);
-    GET_INT(equips,defense_bonus);
-    GET_INT(equips,speed_bonus);
-    GET_INT(equips,magic_attack_bonus);
-    GET_INT(equips,magic_defense_bonus);
-    GET_INT(equips,max_hp_bonus);
-    GET_INT(equips,max_mp_bonus);
-    GET_FLOAT(equips,crit_bonus);
-    GET_FLOAT(equips,dodge_bonus);
-    GET_INT(equips,set_id);
-    GET_INT(equips,price);
-    GET_STRING(equips,description);
-    return equips;
-}
+// Equips *json_parse_equipment(cJSON *json){
+//     Equips *equips = calloc(1,sizeof(Equips));
+//     if (equips == NULL){
+//         printf("申请空间失败\n");
+//         return NULL;
+//     }
+//     GET_INT(equips,id);
+//     cJSON *name = cJSON_GetObjectItem(json,"name");
+//     if (name !=NULL) strcpy(equips->name,name->valuestring);
+//     GET_INT(equips,slot);
+//     GET_INT(equips,quality);
+//     GET_INT(equips,level_require);
+//     GET_INT(equips,attack_bonus);
+//     GET_INT(equips,defense_bonus);
+//     GET_INT(equips,speed_bonus);
+//     GET_INT(equips,magic_attack_bonus);
+//     GET_INT(equips,magic_defense_bonus);
+//     GET_INT(equips,max_hp_bonus);
+//     GET_INT(equips,max_mp_bonus);
+//     GET_FLOAT(equips,crit_bonus);
+//     GET_FLOAT(equips,dodge_bonus);
+//     GET_INT(equips,set_id);
+//     GET_INT(equips,price);
+//     GET_STRING(equips,description);
+//     return equips;
+// }
 
-cJSON *json_serialize_equipment(Equips *equips){
-    cJSON *root = cJSON_CreateObject();
-    SET_INT(equips,id);
-    cJSON_AddStringToObject(root,"name",equips->name);
-    SET_INT(equips,slot);
-    SET_INT(equips,quality);
-    SET_INT(equips,level_require);
-    SET_INT(equips,attack_bonus);
-    SET_INT(equips,defense_bonus);
-    SET_INT(equips,speed_bonus);
-    SET_INT(equips,magic_attack_bonus);
-    SET_INT(equips,magic_defense_bonus);
-    SET_INT(equips,max_hp_bonus);
-    SET_INT(equips,max_mp_bonus);
-    SET_FLOAT(equips,crit_bonus);
-    SET_FLOAT(equips,dodge_bonus);
-    SET_INT(equips,set_id);
-    SET_INT(equips,price);
-    cJSON_AddStringToObject(root,"description",equips->description);
-    return root;
-}
+// cJSON *json_serialize_equipment(Equips *equips){
+//     cJSON *root = cJSON_CreateObject();
+//     SET_INT(equips,id);
+//     cJSON_AddStringToObject(root,"name",equips->name);
+//     SET_INT(equips,slot);
+//     SET_INT(equips,quality);
+//     SET_INT(equips,level_require);
+//     SET_INT(equips,attack_bonus);
+//     SET_INT(equips,defense_bonus);
+//     SET_INT(equips,speed_bonus);
+//     SET_INT(equips,magic_attack_bonus);
+//     SET_INT(equips,magic_defense_bonus);
+//     SET_INT(equips,max_hp_bonus);
+//     SET_INT(equips,max_mp_bonus);
+//     SET_FLOAT(equips,crit_bonus);
+//     SET_FLOAT(equips,dodge_bonus);
+//     SET_INT(equips,set_id);
+//     SET_INT(equips,price);
+//     cJSON_AddStringToObject(root,"description",equips->description);
+//     return root;
+// }
 
 
 
