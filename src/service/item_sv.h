@@ -30,6 +30,7 @@ typedef struct _item{
 
     /* ===== 装备专属字段（非装备时全为 0，不影响） ===== */
     int      slot;              /* 装备槽位 0~5 */
+    int      quality;           //品质
     int      level_require;     /* 穿戴等级 */
     int      attack_bonus;
     int      defense_bonus;
