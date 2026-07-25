@@ -26,6 +26,7 @@ typedef struct _item{
     int      max_stack;         /* 消耗品=99, 装备=1 */
     int      price;             /* 商店售价 */
     char     desc[256];         /* 描述文本 */
+    int sellable;  //0 不可出售 1可出售
 
     /* ===== 装备专属字段（非装备时全为 0，不影响） ===== */
     int      slot;              /* 装备槽位 0~5 */
@@ -39,7 +40,12 @@ typedef struct _item{
     int      max_mp_bonus;
     float    crit_bonus;
     float    dodge_bonus;
+    /* ===== 非装备专属字段（装备时全为 0，不影响） ===== */
+    int effect_type;  //效果类型
+    int effect_value; //效果值
 
 } ItemConfig;
 
+
+int add(User *user, int item_id, int count);
 #endif
