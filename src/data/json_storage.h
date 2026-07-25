@@ -84,9 +84,9 @@ cJSON *json_serialize_user(User *user);
 // Skill *json_parse_skill(cJSON *json);
 // cJSON *json_serialize_skill(Skill *skill);
 
-Equips *json_parse_equipment(cJSON *json);
+// Equips *json_parse_equipment(cJSON *json);
 
-cJSON *json_serialize_equipment(Equips *equip);
+// cJSON *json_serialize_equipment(Equips *equip);
 
 ItemConfig *json_parse_item(cJSON *json);
 cJSON *json_serialize_item(ItemConfig *item);
