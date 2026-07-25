@@ -1,5 +1,9 @@
 #ifndef _PLAYER_SV_H_
 #define _PLAYER_SV_H_
+#define ITEM_MAX 20
+#define ONE 1
+#define ZERO 0
+#define SLOT_MAX 6
 typedef struct {
 
 char username[20];      //用户名
@@ -27,9 +31,9 @@ int magic_defense;      // 法防
 float dodge_rate;       // 闪避率
 float crit_rate;        // 暴击率
 //装备
-int equipment[6];       //装备ID数组:武器，头盔，铠甲，腰带，鞋子，项链
+int equipment[SLOT_MAX];       //装备ID数组:武器，头盔，铠甲，腰带，鞋子，项链
 //背包
-int invertory[20][2];   //背包：[物品ID，数量]
+int invertory[ITEM_MAX][2];   //背包：[物品ID，数量]
 int inventory_count;    //背包物品数
 int skills[10][2];      //技能：[技能ID，等级]
 int skill_count;        //技能数量

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "json_storage.h"
+#include "item_mgr.h"
 
 static ItemConfig g_items[1000];
 static int g_items_count;
@@ -40,11 +40,12 @@ void item_mgr_load_from_json(){
     cJSON_Delete(root);
 }
 
-
 ItemConfig* item_mgr_get_by_id(int id){
     for(int i=0; i<g_items_count;i++){
         if(g_items[i].id == id) return &g_items[i];
     }
     return NULL;
 }
-int item_mgr_get_count();
+int item_mgr_get_count(){
+    return g_items_count;
+}

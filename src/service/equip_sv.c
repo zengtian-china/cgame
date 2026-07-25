@@ -3,101 +3,121 @@
 #include<stdlib.h>
 #include "equip_sv.h"
 #include "json_storage.h"
+#include "item_mgr.h"
 
-/*
-equip_sv
 
-equip_sv.c
-
-装备服务：装备管理、属性计算
-
-*/
-#define MAX_EQUIPS 100
-static Equips g_equips[MAX_EQUIPS];
-static int g_equip_count = 0;
-
-//装备配置文件路径
-int init(void)
-{
-    const char *path = "../../data/items.json";
-    cJSON *root = json_load_file(path);
-    if (!root) return -1;
-    int size = cJSON_GetArraySize(root);
-    for (int i = 0; i < size; i++) {
-        cJSON *tmp = cJSON_GetArrayItem(root, i);
-        if (!tmp) {                       /* 修复1：取不到 = 失败，返回错误码 */
-            cJSON_Delete(root);
-            return -1;
-        }
-        Equips *equips = json_parse_equipment(tmp);
-        if (!equips) {                    /* 修复3：判空，防 NULL 解引用 */
-            cJSON_Delete(root);
-            return -1;
-        }
-        if (g_equip_count >= MAX_EQUIPS) { /* 修复4：容量保护（换成你数组真实容量） */
-            free(equips);
-            cJSON_Delete(root);
-            return -1;
-        }
-        memcpy(&g_equips[g_equip_count], equips, sizeof(Equips));  /* 修复6：用 count 做下标 */
-        g_equip_count++;
-        free(equips);                     /* 修复3：malloc 来的，用完必须 free */
+// 从背包穿戴
+int EquipFromInventory(User *user, int inventory_index){
+    //判断输入数据是否正常
+    if(user == NULL || inventory_index<0 || inventory_index>=ITEM_MAX) return -1;
+    //获取装备信息 判断是否为物品存在的装备
+    ItemConfig * item = item_mgr_get_by_id(user->invertory[inventory_index][0]);
+    if(item == NULL || item->type != ITEM_TYPE_EQUIPMENT){
+        printf("装备信息不存在\n!");
+        return -1;
     }
-    cJSON_Delete(root);
-    return g_equip_count;                 /* 修复5：成功路径返回加载数量 */
-}
-int main(){
-    init();
+    //获取装备slot 是否是正常参数
+    if(item->slot>=SLOT_MAX || item->slot <ZERO) return -1;
+    //定义一个临时数，存放装备id
+    int tmp = user->equipment[item->slot];
+    //穿上装备
+    user->equipment[item->slot] = user->invertory[inventory_index][0];
+    //卸下来的装备存放到背包中
+    user->invertory[inventory_index][0] = tmp;
+    //返回成功值
     return 0;
 }
-//获取装备信息
-Equips *get_by_id(int id){
-    for(int i =0; i<g_equip_count;i++){
-        if(g_equips[i].id == id){
-            return &g_equips[i];
-        }
-    }
-    return NULL;
-}
-//穿戴装备
-int equip(User *user, int equip_id){
 
-    int tmp =0;
+
+
+//穿戴装备 从外部穿戴
+int EquipDirectly(User *user, int equip_id){
+    int found =0;
+    // 查找是否背包是否存在装备id
     for(int i=0;i<user->inventory_count;i++){
         if(user->invertory[i][0] == equip_id){
-            tmp = 1;
+            found = 1;
+            break;
         }
     }
-    if(tmp == 0) {
-        printf("没有该装备\n");
-        return 3;
+    if (user == NULL || equip_id <= 0) {
+        printf("用户或装备ID无效\n");
+        return -1;
     }
-    Equips *equips = get_by_id(equip_id);
-    if(!equips) return 3;
+
+    // 2. 获取配置并校验类型
+    ItemConfig *equips = item_mgr_get_by_id(equip_id);
+    if (equips == NULL || equips->type != ITEM_TYPE_EQUIPMENT) {
+        printf("物品不存在或不是装备\n");
+        return -1;
+    } 
     //装备栏
     if(user->equipment[equips->slot] >0){
-        //装备栏有东西了
-        unequip(user,equips->slot);
+        //装备栏有东西了,将装备卸下
+        int equips_status = Unslot(user,equips->slot);
+        // 判断是否已经卸下
+        if (equips_status == 0) {
+            user->equipment[equips->slot] = equip_id;
+            return 0;
+        }
+        else{
+            printf("穿戴失败!\n");
+        }
+    } else{
+        user->equipment[equips->slot] = equip_id;
+        return 0;
     }
-    user->equipment[equips->slot] = equip_id;
-    //移除背包的的物品，添加移除之后的物品
+    
+    return -1;
+
 }
-//只有"卸下"（纯增加）才需要检查背包满。
-int unequip(User *user, int slot){
-    if(user == NULL || slot <0) return 2;
-    if(user->equipment[slot] <0){
+
+//卸下装备槽
+/*
+    0 正常卸下装备
+    1 输入数据异常
+    2 背包已经满了
+    3 装备槽没有装备
+    4 装备槽的装备不存在物品表中
+*/
+int Unslot(User *user,int slot){
+    // 先将物品排序,预留函数位置
+
+    //检验输入数据是否正常
+    if(user == NULL || slot <0 || slot >=SLOT_MAX) return 1;
+    //判断装备槽是否有装备
+    if(user->equipment[slot] <=0){
         printf("该槽位没有装备\n");
         return 3;
     }
-    Equips * equips = get_by_id(user->equipment[slot]);
-    if(user->inventory_count > 20) {
+    //判断当前背包容量是否是极限
+    if(user->inventory_count >=ITEM_MAX){
         printf("背包已经满了\n");
-                 
+        return 2;
     }
-
+    //检验装备槽的装备是否真正的存在
+    ItemConfig * equips = item_mgr_get_by_id(user->equipment[slot]);
+    if (!equips){
+        printf("该装备不存在\n");
+        return 4;
+    }
+    //将装备槽的装备存放到背包中
+    user->invertory[user->inventory_count][0] = user->equipment[slot];
+    user->invertory[user->inventory_count][1] = ONE;
+    //更新背包数量
+     user->inventory_count++;
+    //将装备槽的装备标识位设置为-1
     user->equipment[slot] = -1;
-
+    return 0;
 }
-void calc_bonus(User *user){
 
+
+//装备出售操作
+
+//自动穿戴装备
+
+
+int main(){
+    init();
+    return 0;
 }
