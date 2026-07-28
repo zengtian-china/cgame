@@ -181,6 +181,48 @@ int use(User *user,int item_id){
     // 判断物品是否存在
     if (!item) return 1;
 
-    // 查看类型，是否可用
+    // 查看类型，是否可用 这里不能使用装备，装备逻辑在其他处
+    if(item->type !=ITEM_TYPE_CONSUMABLE){
+        return 3;
+    }else{
+        // 查看背包是否存在该物品已经数量
+        int status_tmp = find_inventory_id(user,item_id);
+        if(status_tmp <0) return 1;
+        
+        user->invertory[status_tmp][1] -= 1;
+        if(user->invertory[status_tmp][1]<0)
+        {
+            sort(user);//排序一下
+        }
+    }
+    
 
+}
+
+//从后往前
+int find_inventory_id(User *user,int inventory_id){
+    for(int i=user->inventory_count-1;i>=0;i--){
+        if(user->invertory[i][0] == inventory_id && user->invertory[i][1]>0) return i;
+    }
+    return -1;
+}
+
+
+ItemConfig ** list_item(User *user){
+    ItemConfig **item = calloc(user->inventory_count,sizeof(ItemConfig*));
+
+    for(int i=0;i<user->inventory_count;i++){
+        item[i] = item_mgr_get_by_id(user->invertory[i][0]);
+        if(!item[i]) continue;
+    }
+    return item;
+}
+
+
+// 数据要传入到pyqt6中，不需要打印
+void show(ItemConfig **item,int len){
+    // for(int i=0)
+    // for(int i=0;i<len;i++){
+    //     printf("%s")
+    // }
 }
