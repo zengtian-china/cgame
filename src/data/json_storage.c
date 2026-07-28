@@ -226,6 +226,7 @@ ItemConfig *json_parse_item(cJSON *json){
     if(item->type ==ITEM_TYPE_EQUIPMENT){
         //装备类型
         GET_INT(item,slot);
+        GET_INT(item,quality);
         GET_INT(item,level_require);
         GET_INT(item,attack_bonus);
         GET_INT(item,defense_bonus);
@@ -258,6 +259,7 @@ cJSON *json_serialize_item(ItemConfig *item){
     // 判断类型是不是装备类型
     if(item->type == ITEM_TYPE_EQUIPMENT){
         SET_INT(item,slot);
+        SET_INT(item,quality);
         SET_INT(item,level_require);
         SET_INT(item,attack_bonus);
         SET_INT(item,defense_bonus);
