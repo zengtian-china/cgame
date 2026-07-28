@@ -5,7 +5,6 @@
 #include<math.h>
 #include<dirent.h>
 #include "player_sv.h"
-#include "json_storage.h"
 #define MAX_FILELIST 20
 /*
 // 登录，注册 生成一个密钥目录 该密钥下有角色信息(可以限制文件数量)
@@ -58,10 +57,10 @@ User *create(const char *name, int race, int class_id){
     user->exp = 0;
     user->gold = 1000;
     user->race = race;
-    user->class = class_id;
+    // user->class = class_id;
     // 五维基础属性
     rece_dict tmp_rece = array[user->race-1];
-    class_dict tmp_class = class_array[user->class-1];
+    class_dict tmp_class = class_array[user->class_id-1];
     user->strength = 5+tmp_rece.rece_array[0]+tmp_class.class_array[0];
     user->physique = 5+tmp_rece.rece_array[1]+tmp_class.class_array[1];
     user->endurance = 5+tmp_rece.rece_array[2]+tmp_class.class_array[2];
@@ -136,7 +135,7 @@ void levele_up(User *user){
     user->level++;
     user->gold+= 100*user->level;
     rece_dict tmp_rece = array[user->race-1];
-    class_dict tmp_class = class_array[user->class-1];
+    class_dict tmp_class = class_array[user->class_id-1];
     user->strength += LEVELE(0);
     user->physique += LEVELE(1);
     user->endurance += LEVELE(2);
