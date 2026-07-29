@@ -141,8 +141,8 @@ User *json_parse_user(cJSON *json){
             if (item != NULL) {
                 cJSON *item_id = cJSON_GetObjectItem(item,"item_id");
                 cJSON *enhance_level = cJSON_GetObjectItem(item,"enhance_level");
-                if(!item_id) user->equipment[i].item_id = item_id->valueint;
-                if(!enhance_level) user->equipment[i].enhance_level = enhance_level->valueint;
+                if(item_id !=NULL) user->equipment[i].item_id = item_id->valueint;
+                if(enhance_level !=NULL) user->equipment[i].enhance_level = enhance_level->valueint;
             }
         }
     }
@@ -190,7 +190,15 @@ User *json_parse_user(cJSON *json){
         int size = cJSON_GetArraySize(tasks);
         // int child = cJSON
         for(int i =0;i<size;i++){
-            
+            cJSON * child = cJSON_GetArrayItem(tasks,i);
+            if(child !=NULL){
+                cJSON *task_id = cJSON_GetObjectItem(child,"task_id");
+                cJSON *status = cJSON_GetObjectItem(child,"status");
+                cJSON *progress = cJSON_GetObjectItem(child,"progress");
+                if (task_id !=NULL) user->tasks[i].task_id = task_id->valueint;
+                if (status !=NULL) user->tasks[i].status = status->valueint;
+                if (progress != NULL) user->tasks[i].progress = progress->valueint;
+            }
         }
     }
 
@@ -210,11 +218,11 @@ User *json_parse_user(cJSON *json){
 cJSON *json_serialize_user(User *user){
     cJSON *root = cJSON_CreateObject();
     cJSON_AddStringToObject(root,"username",user->username);
-    cJSON_AddNumberToObject(root,"level",user->level);
+    SET_INT(user,level);
     SET_INT(user,exp);
     SET_INT(user,gold);
     SET_INT(user,race);
-    // SET_INT(user,class);
+    SET_INT(user,class_id);
     //基础属性
     SET_INT(user,strength);
     SET_INT(user,physique);
@@ -234,8 +242,14 @@ cJSON *json_serialize_user(User *user){
     SET_FLOAT(user,dodge_rate);
     SET_FLOAT(user,crit_rate);
     cJSON *equipment = cJSON_CreateArray();
-    for(int i=0;i<6;i++) SET_STRING(equipment,i);
+    for(int i=0;i<6;i++){
+        cJSON *child = cJSON_CreateObject();
+        cJSON_AddNumberToObject(child,"item_id",user->equipment[i].item_id);
+        cJSON_AddNumberToObject(child,"enhance_level",user->equipment[i].enhance_level);
+        cJSON_AddItemToArray(equipment,child);
+    }
     cJSON_AddItemToObject(root,"equipment",equipment);
+
     cJSON *invertory = cJSON_AddArrayToObject(root,"invertory");
     for(int i =0; i<user->inventory_count;i++){
         cJSON *tmp = cJSON_CreateArray();
@@ -249,10 +263,24 @@ cJSON *json_serialize_user(User *user){
         cJSON *tmp_1 = cJSON_CreateArray();
         cJSON_AddItemToArray(tmp_1,cJSON_CreateNumber(user->skills[i][0]));
         cJSON_AddItemToArray(tmp_1,cJSON_CreateNumber(user->skills[i][1]));
+        cJSON_AddItemToArray(tmp_1,cJSON_CreateNumber(user->skills[i][2]));
         cJSON_AddItemToArray(tmp_skills,tmp_1);
     }
     cJSON_AddItemToObject(root,"skills",tmp_skills);
+
     SET_INT(user,skill_count);
+    SET_INT(user,skill_points);
+    cJSON *tasks = cJSON_CreateArray();
+    for(int i=0;i<user->task_count;i++){
+        cJSON *child = cJSON_CreateObject();
+        cJSON_AddNumberToObject(child,"task_id",user->tasks[i].task_id);
+        cJSON_AddNumberToObject(child,"status",user->tasks[i].status);
+        cJSON_AddNumberToObject(child,"progress",user->tasks[i].progress);
+        cJSON_AddItemToArray(tasks,child);
+    }
+    cJSON_AddItemToObject(root,"tasks",tasks);
+    SET_INT(user,task_count);
+
     SET_INT(user,map_id);
     SET_INT(user,pos_x);
     SET_INT(user,pos_y);
@@ -356,26 +384,37 @@ cJSON *json_serialize_item(ItemConfig *item){
 }
 
 
+
 Task *json_parse_task(cJSON *json){
     Task *task = calloc(1,sizeof(Task));
     if (!task) return NULL;
     GET_INT(task,id);
     GET_STRING(task,name);
+    GET_STRING(task,desc);
     GET_INT(task,level_require);
-    GET_INT(task,item_reward_id);
-    GET_INT(task,type);
+    GET_INT(task,pre_quest_id);
 
-    GET_INT(task,complete_type);
-    GET_INT(task,complete_target);
-    GET_INT(task,complete_count);
-    GET_INT(task,exp_reward);
-    GET_INT(task,gold_reward);
+    cJSON *type = cJSON_GetObjectItem(json,"cond_type");
+    if (type !=NULL) task->cond_type = type->valueint;
+    GET_INT(task,cond_target_id);
+    GET_INT(task,cond_target_count);
+    GET_INT(task,reward_exp);
+    GET_INT(task,reward_gold);
 
-    GET_INT(task,item_reward_count);
-    GET_INT(task,contribution_reward);
-    GET_INT(task,description);
-    GET_INT(task,prev_task_id);
-    GET_INT(task,prev_task_id);
+    cJSON *reward_items = cJSON_GetObjectItem(json,"reward_items");
+    if(reward_items !=NULL && cJSON_IsArray(reward_items)){
+        int size = cJSON_GetArraySize(reward_items);
+        for(int i=0;i<size;i++){
+            cJSON *child = cJSON_GetArrayItem(reward_items,i);
+            if (child !=NULL){
+                cJSON *nu1 = cJSON_GetArrayItem(child,0);
+                cJSON *nu2 = cJSON_GetArrayItem(child,1);
+                task->reward_items[i][0] = nu1->valueint;
+                task->reward_items[i][1] = nu2->valueint;
+            }
+        }
+    }
+    GET_INT(task,reward_items_count);
     return task;
 }
 cJSON *json_serialize_task(Task *task){
@@ -383,20 +422,25 @@ cJSON *json_serialize_task(Task *task){
     if(!root) return NULL;
     SET_INT(task,id);
     cJSON_AddStringToObject(root,"name",task->name);
-    SET_INT(task,type);
+    cJSON_AddStringToObject(root,"desc",task->desc);
     SET_INT(task,level_require);
-    SET_INT(task,accept_npc_id);
-    SET_INT(task,complete_type);
-    SET_INT(task,complete_target);
-    SET_INT(task,complete_count);
-    SET_INT(task,exp_reward);
-    SET_INT(task,gold_reward);
-    SET_INT(task,item_reward_id);
-    SET_INT(task,item_reward_count);
-    SET_INT(task,contribution_reward);
-    SET_INT(task,description);
-    SET_INT(task,prev_task_id);
-    SET_INT(task,prev_task_id);
+    SET_INT(task,pre_quest_id);
+
+    SET_INT(task,cond_type);
+    SET_INT(task,cond_target_id);
+    SET_INT(task,cond_target_count);
+
+    SET_INT(task,reward_exp);
+    SET_INT(task,reward_gold);
+    cJSON *reward_items = cJSON_CreateArray();
+    for(int i=0;i<task->reward_items_count;i++){
+        cJSON *child =cJSON_CreateArray();
+        cJSON_AddItemToArray(child,task->reward_items[i][0]);
+        cJSON_AddItemToArray(child,task->reward_items[i][1]);
+        cJSON_AddItemToArray(reward_items,child);
+    }
+    cJSON_AddItemToObject(root,"reward_items",reward_items);
+    SET_INT(task,reward_items_count);
     return root;
     
 }

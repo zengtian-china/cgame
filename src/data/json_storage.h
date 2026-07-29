@@ -166,6 +166,7 @@ typedef struct _task{
     int          reward_exp;
     int          reward_gold;
     int          reward_items[QUEST_REWARD_ITEM_NUM][2]; /* [item_id, count] */
+    int          reward_items_count;
 
 } Task;
 
