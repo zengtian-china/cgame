@@ -3,7 +3,6 @@
 #include<string.h>
 #include "json_storage.h"
 
-
 #define GET_INT(user,field) do { \
     cJSON *_tmp = cJSON_GetObjectItem(json, #field); \
     if (_tmp && _tmp->valueint) user->field = _tmp->valueint; \
@@ -63,6 +62,8 @@ char * item_type_to_str(ItemType xx){
     cJSON_AddStringToObject(root,#xx,(cc)(user->xx)); \
 }while(0)
 
+
+//读取json文件
 cJSON *json_load_file(const char *path){
     FILE *fp = fopen(path,"rb");
     if( fp ==NULL){
@@ -108,7 +109,7 @@ User *json_parse_user(cJSON *json){
     GET_INT(user,exp);          // ✅ long 用 valuedouble 转换
     GET_INT(user,gold);
     GET_INT(user,race);  
-    // GET_INT(user,class);
+    GET_INT(user,class_id);
 
     // ========== 基础属性 ==========
     GET_INT(user,strength);
@@ -127,10 +128,9 @@ User *json_parse_user(cJSON *json){
     GET_INT(user,speed);
     GET_INT(user,magic_attack);
     GET_INT(user,magic_defense);
-
-    
     GET_FLOAT(user,dodge_rate);
     GET_FLOAT(user,crit_rate);
+
      // ========== 装备 (数组) ==========
     cJSON *equipment = cJSON_GetObjectItem(json, "equipment");
     if (equipment != NULL && cJSON_IsArray(equipment)) {
@@ -139,7 +139,10 @@ User *json_parse_user(cJSON *json){
         for (int i = 0; i < size; i++) {
             cJSON *item = cJSON_GetArrayItem(equipment, i);
             if (item != NULL) {
-                user->equipment[i] = item->valueint;
+                cJSON *item_id = cJSON_GetObjectItem(item,"item_id");
+                cJSON *enhance_level = cJSON_GetObjectItem(item,"enhance_level");
+                if(!item_id) user->equipment[i].item_id = item_id->valueint;
+                if(!enhance_level) user->equipment[i].enhance_level = enhance_level->valueint;
             }
         }
     }
@@ -171,15 +174,30 @@ User *json_parse_user(cJSON *json){
             if (row != NULL && cJSON_IsArray(row)) {
                 cJSON *id  = cJSON_GetArrayItem(row, 0);
                 cJSON *lv  = cJSON_GetArrayItem(row, 1);
+                cJSON *ti  = cJSON_GetArrayItem(row, 2);
                 if (id != NULL) user->skills[i][0] = id->valueint;
                 if (lv != NULL) user->skills[i][1] = lv->valueint;
+                if (ti != NULL) user->skills[i][2] = ti->valueint;
             }
         }
     }
     GET_INT(user,skill_count);
+    GET_INT(user,skill_points);
+
+    // ========== 任务 ==========
+    cJSON *tasks = cJSON_GetObjectItem(json,"tasks");
+    if (!tasks && cJSON_IsArray(tasks)){
+        int size = cJSON_GetArraySize(tasks);
+        // int child = cJSON
+        for(int i =0;i<size;i++){
+            
+        }
+    }
+
+    GET_INT(user,task_count);
 
     // ========== 位置 ==========
-    GET_INT(user,current_map);
+    GET_INT(user,map_id);
     GET_INT(user,pos_x);
     GET_INT(user,pos_y);
     // ========== 其他 ==========
@@ -235,7 +253,7 @@ cJSON *json_serialize_user(User *user){
     }
     cJSON_AddItemToObject(root,"skills",tmp_skills);
     SET_INT(user,skill_count);
-    SET_INT(user,current_map);
+    SET_INT(user,map_id);
     SET_INT(user,pos_x);
     SET_INT(user,pos_y);
     SET_INT(user,contribution);
@@ -280,12 +298,15 @@ ItemConfig *json_parse_item(cJSON *json){
     GET_ENUM(item,type,str_type_to_item);
     GET_INT(item,max_stack);
     GET_INT(item,price);
+    GET_INT(item,sell_price); //出售价格
     GET_STRING(item,desc);
-    GET_INT(item,sellable);
+    GET_INT(item,usable); //0 =不可使用 1=可使用
+    GET_INT(item,use_effect_type);
+    GET_INT(item,use_effect_value);
     //判断类型
     if(item->type ==ITEM_TYPE_EQUIPMENT){
         //装备类型
-        GET_INT(item,slot);
+        GET_INT(item,equip_slot);
         GET_INT(item,quality);
         GET_INT(item,level_require);
         GET_INT(item,attack_bonus);
@@ -297,9 +318,6 @@ ItemConfig *json_parse_item(cJSON *json){
         GET_INT(item,max_mp_bonus);
         GET_FLOAT(item,crit_bonus);
         GET_FLOAT(item,dodge_bonus);
-    }else{
-        GET_INT(item,effect_type);
-        GET_INT(item,effect_value);
     }
     return item;
 }
@@ -313,12 +331,15 @@ cJSON *json_serialize_item(ItemConfig *item){
     SET_ENUM(item,type,item_type_to_str);
     SET_INT(item,max_stack);
     SET_INT(item,price);
+    SET_INT(item,sell_price); 
     cJSON_AddStringToObject(root,"desc",item->desc);
-    SET_INT(item,sellable);
+    SET_INT(item,usable);
+    SET_INT(item,use_effect_type);
+    SET_INT(item,use_effect_value);
 
     // 判断类型是不是装备类型
     if(item->type == ITEM_TYPE_EQUIPMENT){
-        SET_INT(item,slot);
+        SET_INT(item,equip_slot);
         SET_INT(item,quality);
         SET_INT(item,level_require);
         SET_INT(item,attack_bonus);
@@ -330,9 +351,6 @@ cJSON *json_serialize_item(ItemConfig *item){
         SET_INT(item,max_mp_bonus);
         SET_FLOAT(item,crit_bonus);
         SET_FLOAT(item,dodge_bonus);
-    } else{
-        SET_INT(item,effect_type);
-        SET_INT(item,effect_value);
     }
     return root;
 }
@@ -343,15 +361,16 @@ Task *json_parse_task(cJSON *json){
     if (!task) return NULL;
     GET_INT(task,id);
     GET_STRING(task,name);
-    GET_INT(task,type);
     GET_INT(task,level_require);
-    GET_INT(task,accept_npc_id);
+    GET_INT(task,item_reward_id);
+    GET_INT(task,type);
+
     GET_INT(task,complete_type);
     GET_INT(task,complete_target);
     GET_INT(task,complete_count);
     GET_INT(task,exp_reward);
     GET_INT(task,gold_reward);
-    GET_INT(task,item_reward_id);
+
     GET_INT(task,item_reward_count);
     GET_INT(task,contribution_reward);
     GET_INT(task,description);
