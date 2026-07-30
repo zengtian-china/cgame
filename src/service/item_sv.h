@@ -4,5 +4,5 @@
 
 
 
-int add(User *user, int item_id, int count);
+int add(User *user, int item_id, int* count);
 #endif

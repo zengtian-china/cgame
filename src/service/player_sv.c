@@ -82,7 +82,7 @@ User *create(const char *name, int race, int class_id){
     // 技能（初始无技能）
     user->skill_count = 0;
     // 地图与坐标（新手村出生点）
-    user->current_map = 1001;
+    user->map_id = 1001;
     user->pos_x = 128;
     user->pos_y = 128;
     // 声望
@@ -180,9 +180,9 @@ void calc_battle_stats(User *user)
     
     /* 加上装备加成 */
     for (int i = 0; i < 6; i++) {
-        if (user->equipment[i] >= 0) {
-            /* 装备加成在equip_sv中计算，这里预留接口 */
-        }
+        // if (user->equipment[i] >= 0) {
+        //     /* 装备加成在equip_sv中计算，这里预留接口 */
+        // }
     }
 }
 

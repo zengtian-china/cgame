@@ -103,6 +103,7 @@ int update_progress(User *user, int task_id, int progress){
     return 1;
 }
 
+// 2 物品没有完全领完
 int claim_reward(User *user,int task_id){
     Task *task = get_by_id(task_id);
     if (!task) return 1; //任务不存在
@@ -113,11 +114,14 @@ int claim_reward(User *user,int task_id){
             user->gold += task->reward_gold;
             // 领物品 判断背包是否满， 判断背包
             for(int i=0;i<task->reward_items_count && user->inventory_count<=MAX_INVENTORY;i++){
-                // 往里面添加物品
-                 int i = add(user,task->reward_items[i][0],task->reward_items[i][1]);
-                 if(i !=0) {
+                int tmp_number = task->reward_items[i][1];
+                int * p = &tmp_number;
+                 int status = add(user,task->reward_items[i][0],p);
+                 if(status !=0) {
                     printf("物品添加失败\n");
                     // 添加到邮件中;
+                    // 传入 task i p
+                    return 2;
                  }
             }
 
