@@ -9,11 +9,11 @@
 #define ONE 1
 #define ZERO 0
 #define SLOT_MAX 6
-#define MAX_PLAYER_TASKS 20   // 最多同时接取20个任务
+#define MAX_PLAYER_TASKS 10   // 最多同时接取20个任务
 #define MAX_INVENTORY   20
 #define MAX_SKILLS      10
 #define MAX_EQUIPMENT    6
-#define MAX_TASKS       20
+#define MAX_TASKS       10
 #define MAX_NAME_LEN    20
 #define QUEST_REWARD_ITEM_NUM  3   /* 最多奖励3种物品 */
 

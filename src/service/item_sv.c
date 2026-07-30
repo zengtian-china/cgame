@@ -6,39 +6,78 @@
 
 
 
-int add(User *user, int item_id, int count){
+int add(User *user, int item_id, int* count){
     //检查输入数据
-    if(!user || item_id<=0 || count <=0) return -1;
+    if(!user || item_id<=0 || *count <=0) return -1;
     //获取物品结构体信息
     ItemConfig * items = item_mgr_get_by_id(item_id);
-    // 数量 每次添加
-    if(!items || items->max_stack < count) return -1;
+    // 数量 每次添加    是否要判断 items->max_stack  不需要
+    if(!items) return -1;
     
     //根据max_stack来区分 1 和 99的类型
 
     // 如果max_stack是1的情况
     if(items->max_stack == ONE){
-        if(user->inventory_count+count > ITEM_MAX) return -1;
-        for(int i=0;i<count;i++){
-            user->invertory[user->inventory_count][0] = item_id;
-            user->invertory[user->inventory_count][1] = ONE;
+        if(user->inventory_count+*count > ITEM_MAX) return -1;
+        for(int i=0;i<*count;i++){
+            user->inventory[user->inventory_count][0] = item_id;
+            user->inventory[user->inventory_count][1] = ONE;
             user->inventory_count ++;
         }
         return 0;
     } else{
-        // 99的情况
-        int tmp_number = (count + 99 - 1) / 99;
-        int num_count = count;
-        for(int i =0;i<tmp_number && num_count >0;i++){
-            // 循环次数 
-            if(user->inventory_count+tmp_number > ITEM_MAX) return -1;
-            user->invertory[user->inventory_count][0] = item_id;
-            user->invertory[user->inventory_count][1] = num_count > 99 ?99:num_count;
+        // 99的情况  如果背包满了， 格子还没满的情况
+        int tmp_number = (*count + 99 - 1) / 99;
+        int num_count = *count;
+        //添加数据 先找到是否有相同的物品，并且相同的物品容量是否满了
+        int index = find_inventory_id(user,item_id);
+
+        //当前添加的物品存在，并且添加的数量可以和存在的物品数量合并
+        if(index >=0 && user->inventory[index][1] !=99){
+            int tmp_inventory_count = user->inventory[index][1];
+            // 并且没有超出最大容量
+            if(tmp_inventory_count + *count <=99){
+                user->inventory[index][1] += num_count;
+                *count =0;
+                return 0;
+            } else{
+                // 满了 *count  - (99 -user->inventory[index][1])
+                *count = *count  - (99 -user->inventory[index][1]);
+                user->inventory[index][1] = 99;
+                // 减去满的数量
+                int tmp_number_1 = (*count + 99 - 1) / 99;
+                int num_count1 = *count;
+
+                for(int i =0;i<tmp_number_1 && num_count1 >0;i++){
+                    //  背包要满的情况 应该让它先满
+                    if(user->inventory_count >=ITEM_MAX) {
+                        *count = num_count1;
+                        return -1;
+                    }
+                    user->inventory[user->inventory_count][0] = item_id;
+                    user->inventory[user->inventory_count][1] = num_count1 > 99 ?99:num_count1;
+                    num_count1-=99;
+                    user->inventory_count ++;
+                }
+            *count = num_count1;
+            return 0;
+            }
+
+        }else{
+            for(int i =0;i<tmp_number && num_count >0;i++){
+            //  背包要满的情况
+            if(user->inventory_count >= ITEM_MAX) {
+                *count = num_count;
+                return -1;
+            }
+            user->inventory[user->inventory_count][0] = item_id;
+            user->inventory[user->inventory_count][1] = num_count > 99 ?99:num_count;
             num_count-=99;
             user->inventory_count ++;
         }
+        *count = num_count;
         return 0;
-
+        }
     }
 }
 
@@ -66,7 +105,7 @@ int remove(User *user,int item_id,int count){
         // 先查找id 是否有那么多
         int find_count = 0;
         for(int i=0;i<user->inventory_count;i++){
-            if(user->invertory[i][0] == item_id){
+            if(user->inventory[i][0] == item_id){
                 find_count++;
             }
         }
@@ -77,8 +116,8 @@ int remove(User *user,int item_id,int count){
         else{
             // 查找 item_id 移除
             for(int i=user->inventory_count-1;i>=0 && count>0;i--){
-                if(user->invertory[i][0] == item_id && user->invertory[i][1] !=0){
-                    user->invertory[i][1] = 0;
+                if(user->inventory[i][0] == item_id && user->inventory[i][1] !=0){
+                    user->inventory[i][1] = 0;
                     count--;
                 }
             }
@@ -91,8 +130,8 @@ int remove(User *user,int item_id,int count){
         // 先查找id 是否有那么多
         int total_have = 0;
         for (int i = 0; i < user->inventory_count; i++) {
-            if (user->invertory[i][0] == item_id) {
-                total_have += user->invertory[i][1];
+            if (user->inventory[i][0] == item_id) {
+                total_have += user->inventory[i][1];
             }
         }
 if (total_have < count) {
@@ -101,11 +140,11 @@ if (total_have < count) {
     }   else{
             // 查找 item_id 移除
             for(int i=user->inventory_count-1;i>=0 && count>0;i--){
-                if(user->invertory[i][0] == item_id && user->invertory[i][1] !=0){
-                    int deduct = (user->invertory[i][1] <= count) 
-                                ? user->invertory[i][1]   // 这格全扣
+                if(user->inventory[i][0] == item_id && user->inventory[i][1] !=0){
+                    int deduct = (user->inventory[i][1] <= count) 
+                                ? user->inventory[i][1]   // 这格全扣
                                 : count;                  // 只扣需要的
-                    user->invertory[i][1] -= deduct;
+                    user->inventory[i][1] -= deduct;
                     count -= deduct;
                 }
             }
@@ -122,42 +161,42 @@ int sort(User *user){
     for(int i=0;i<user->inventory_count;i++){
         // if(tmp->type)
         for(int j=i+1;j<user->inventory_count;j++){
-            ItemConfig *tmp = item_mgr_get_by_id(user->invertory[i][0]);
-            ItemConfig *tmp_1 = item_mgr_get_by_id(user->invertory[j][0]);
+            ItemConfig *tmp = item_mgr_get_by_id(user->inventory[i][0]);
+            ItemConfig *tmp_1 = item_mgr_get_by_id(user->inventory[j][0]);
             // 找出类型最小的那个
             if(tmp->type < tmp_1->type){
-                int tmp_num1 = user->invertory[i][0];
-                int tmp_num2 = user->invertory[i][1];
-                user->invertory[i][0] = user->invertory[j][0];
-                user->invertory[i][1] = user->invertory[j][1];
-                user->invertory[j][0] = tmp_num1;
-                user->invertory[j][1] = tmp_num2;
+                int tmp_num1 = user->inventory[i][0];
+                int tmp_num2 = user->inventory[i][1];
+                user->inventory[i][0] = user->inventory[j][0];
+                user->inventory[i][1] = user->inventory[j][1];
+                user->inventory[j][0] = tmp_num1;
+                user->inventory[j][1] = tmp_num2;
 
             }
             // 类型相同 按照装备品质从高到低排
              else if (tmp->type == tmp_1->type &&(tmp->type == ITEM_TYPE_EQUIPMENT) && tmp->quality > tmp_1->quality){
-                int tmp_num1 = user->invertory[i][0];
-                int tmp_num2 = user->invertory[i][1];
-                user->invertory[i][0] = user->invertory[j][0];
-                user->invertory[i][1] = user->invertory[j][1];
-                user->invertory[j][0] = tmp_num1;
-                user->invertory[j][1] = tmp_num2;
+                int tmp_num1 = user->inventory[i][0];
+                int tmp_num2 = user->inventory[i][1];
+                user->inventory[i][0] = user->inventory[j][0];
+                user->inventory[i][1] = user->inventory[j][1];
+                user->inventory[j][0] = tmp_num1;
+                user->inventory[j][1] = tmp_num2;
             // 类型相同 按照药品效果类别从高到低排
-            }else if(tmp->type == tmp_1->type &&(tmp->type == ITEM_TYPE_CONSUMABLE ) && tmp->effect_type > tmp_1->effect_type){
-                int tmp_num1 = user->invertory[i][0];
-                int tmp_num2 = user->invertory[i][1];
-                user->invertory[i][0] = user->invertory[j][0];
-                user->invertory[i][1] = user->invertory[j][1];
-                user->invertory[j][0] = tmp_num1;
-                user->invertory[j][1] = tmp_num2;
+            }else if(tmp->type == tmp_1->type &&(tmp->type == ITEM_TYPE_CONSUMABLE ) && tmp->use_effect_type > tmp_1->use_effect_type){
+                int tmp_num1 = user->inventory[i][0];
+                int tmp_num2 = user->inventory[i][1];
+                user->inventory[i][0] = user->inventory[j][0];
+                user->inventory[i][1] = user->inventory[j][1];
+                user->inventory[j][0] = tmp_num1;
+                user->inventory[j][1] = tmp_num2;
                 //按照 id从低到高排
             }else if(tmp->type == tmp_1->type && tmp->id < tmp_1->id){
-                int tmp_num1 = user->invertory[i][0];
-                int tmp_num2 = user->invertory[i][1];
-                user->invertory[i][0] = user->invertory[j][0];
-                user->invertory[i][1] = user->invertory[j][1];
-                user->invertory[j][0] = tmp_num1;
-                user->invertory[j][1] = tmp_num2;
+                int tmp_num1 = user->inventory[i][0];
+                int tmp_num2 = user->inventory[i][1];
+                user->inventory[i][0] = user->inventory[j][0];
+                user->inventory[i][1] = user->inventory[j][1];
+                user->inventory[j][0] = tmp_num1;
+                user->inventory[j][1] = tmp_num2;
             }
         }
     }
@@ -189,8 +228,8 @@ int use(User *user,int item_id){
         int status_tmp = find_inventory_id(user,item_id);
         if(status_tmp <0) return 1;
         
-        user->invertory[status_tmp][1] -= 1;
-        if(user->invertory[status_tmp][1]<0)
+        user->inventory[status_tmp][1] -= 1;
+        if(user->inventory[status_tmp][1]<0)
         {
             sort(user);//排序一下
         }
@@ -202,7 +241,7 @@ int use(User *user,int item_id){
 //从后往前
 int find_inventory_id(User *user,int inventory_id){
     for(int i=user->inventory_count-1;i>=0;i--){
-        if(user->invertory[i][0] == inventory_id && user->invertory[i][1]>0) return i;
+        if(user->inventory[i][0] == inventory_id && user->inventory[i][1]>0) return i;
     }
     return -1;
 }
@@ -212,7 +251,7 @@ ItemConfig ** list_item(User *user){
     ItemConfig **item = calloc(user->inventory_count,sizeof(ItemConfig*));
 
     for(int i=0;i<user->inventory_count;i++){
-        item[i] = item_mgr_get_by_id(user->invertory[i][0]);
+        item[i] = item_mgr_get_by_id(user->inventory[i][0]);
         if(!item[i]) continue;
     }
     return item;

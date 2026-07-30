@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "task_sv.h"
-
-static Task taskList[100];
+#include "item_sv.h"
+static Task taskList[10];
 int tasklist_count =0;
 
 
@@ -59,10 +59,10 @@ int accept(User *user, int task_id){
 
 
         // 前置任务检查                                    fix #2
-    if (task->prev_task_id != 0) {
+    if (task->pre_quest_id != 0) {
         int done = 0;
         for (int i = 0; i < user->task_count; i++) {
-            if (user->tasks[i].task_id == task->prev_task_id &&
+            if (user->tasks[i].task_id == task->pre_quest_id &&
                 user->tasks[i].status == TASK_STATUS_REWARDED) {
                 done = 1;
                 break;
@@ -87,3 +87,42 @@ int accept(User *user, int task_id){
 
 }
 
+int update_progress(User *user, int task_id, int progress){
+    Task *task = get_by_id(task_id);
+    if (!task || progress <=0) return 1; //任务不存在
+
+    for(int i=0;i<user->task_count;i++){
+        if(user->tasks[i].task_id == task_id  && user->tasks[i].status ==TASK_STATUS_IN_PROGRESS){
+            user->tasks[i].progress += progress;
+            if(user->tasks[i].progress >= task->cond_target_count){
+                user->tasks[i].status = TASK_STATUS_COMPLETED;
+            }
+            return 0;
+        }
+    }
+    return 1;
+}
+
+int claim_reward(User *user,int task_id){
+    Task *task = get_by_id(task_id);
+    if (!task) return 1; //任务不存在
+    for(int i=0;i<user->task_count;i++){
+        if(user->tasks[i].task_id == task_id && user->tasks[i].status ==TASK_STATUS_COMPLETED){
+            // 领奖励
+            user->exp += task->reward_exp;
+            user->gold += task->reward_gold;
+            // 领物品 判断背包是否满， 判断背包
+            for(int i=0;i<task->reward_items_count && user->inventory_count<=MAX_INVENTORY;i++){
+                // 往里面添加物品
+                 int i = add(user,task->reward_items[i][0],task->reward_items[i][1]);
+                 if(i !=0) {
+                    printf("物品添加失败\n");
+                    // 添加到邮件中;
+                 }
+            }
+
+            return 0;
+        }
+    }
+    return -1;
+}
