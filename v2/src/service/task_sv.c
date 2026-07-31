@@ -112,6 +112,7 @@ int claim_reward(User *user,int task_id){
             // 领奖励
             user->exp += task->reward_exp;
             user->gold += task->reward_gold;
+            user->tasks[i].status ==TASK_STATUS_REWARDED;
             // 领物品 判断背包是否满， 判断背包
             for(int i=0;i<task->reward_items_count && user->inventory_count<=MAX_INVENTORY;i++){
                 int tmp_number = task->reward_items[i][1];
